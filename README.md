@@ -1,6 +1,6 @@
 # pdportal
 
-A magic portal for [Playdate](https://play.date) that enables online multiplayer using Web Serial and WebRTC. This is the web interface (available for use with any Playdate game at https://pdportal.net). If you want to make a multiplayer game that uses pdportal, check out the [playdate](./playdate) subfolder.
+A magic portal for [Playdate](https://play.date) that enables online multiplayer using Web Serial and WebRTC. This is the web interface (available for use with any Playdate game at https://pdportal.net). If you want to make a multiplayer game that uses pdportal, check out the [lua](./lua) subfolder.
 
 Note that [this technique _cannot_ be used with Catalog games](https://github.com/cranksters/playdate-reverse-engineering/blob/main/usb/usb.md#eval) currently/probably ever.
 

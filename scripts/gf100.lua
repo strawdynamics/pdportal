@@ -1,0 +1,1 @@
+globalfunc('hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello')
