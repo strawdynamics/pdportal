@@ -11,7 +11,6 @@
 	}
 
 	const connect = async () => {
-		console.warn('whatnow')
 		try {
 			$pdDevice = await requestConnectPlaydate()
 			await $pdDevice.open()
