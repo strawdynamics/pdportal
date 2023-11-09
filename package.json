@@ -32,6 +32,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"pd-usb": "^2.0.1",
 		"peerjs": "^1.5.1"
 	}
 }

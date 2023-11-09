@@ -3,7 +3,6 @@ import "./pdportal"
 
 function playdate.update()
 	playdate.drawFPS(10, 10)
-	print('okwhat')
 end
 
 function global1(stringArg)

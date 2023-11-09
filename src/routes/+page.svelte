@@ -6,7 +6,7 @@
 	import { downloadBufferAsFile, hexStringToBuffer } from '$lib/util/buffer'
 	import { getGlobalFunctionCallBytecode } from '$lib/util/luaBytecode'
 
-	let functionName = 'someGlobal'
+	let functionName = 'global1'
 	let payload = 'hey'
 
 	$: bytecode = getGlobalFunctionCallBytecode(functionName, payload)
