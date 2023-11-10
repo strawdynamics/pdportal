@@ -1,4 +1,4 @@
-# pdportal
+# [WIP] pdportal
 
 A magic portal for [Playdate](https://play.date) that enables online multiplayer using Web Serial and WebRTC. This is the web interface (available for use with any Playdate game at https://pdportal.net). If you want to make a multiplayer game that uses pdportal, check out the [lua](./lua) subfolder.
 
@@ -25,7 +25,7 @@ Note that [this technique _cannot_ be used with Catalog games](https://github.co
 
 ## Thanks
 
-pdportal uses [pd-usb](https://github.com/cranksters/pd-usb) to communicate with the cheese. It's built with [Svelte](https://svelte.dev/) and [PeerJS](https://peerjs.com/).
+pdportal uses [pd-usb](https://github.com/cranksters/pd-usb) and info from [playdate-reverse-engineering](https://github.com/cranksters/playdate-reverse-engineering) to communicate with the cheese. It's built with [Svelte](https://svelte.dev/) and [PeerJS](https://peerjs.com/).
 
 Inspiration and help with the Lua bytecode parts came from [pd-camera](https://github.com/t0mg/pd-camera), and code from [Eric Lewis](https://gist.github.com/ericlewis/43d07016275308de11a5519466deea85).
 
