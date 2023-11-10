@@ -6,11 +6,19 @@
 	import { pdDevice } from '$lib/stores/pdDevice'
 	import { downloadBufferAsFile, hexStringToBuffer } from '$lib/util/buffer'
 	import { getGlobalFunctionCallBytecode } from '$lib/util/luaBytecode'
+	import { onMount } from 'svelte'
+	import { goto } from '$app/navigation'
 
 	let functionName = 'global1'
 	let payload = 'hey'
 
 	$: bytecode = getGlobalFunctionCallBytecode(functionName, payload)
+
+	onMount(async () => {
+		if (!$pdDevice) {
+			await goto('/')
+		}
+	})
 
 	const download = () => {
 		const buf = hexStringToBuffer(bytecode)
