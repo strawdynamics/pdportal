@@ -2,17 +2,33 @@
 	import { BadgeInfo, Github, TerminalSquare } from 'lucide-svelte'
 
 	import HeaderLink from './HeaderLink.svelte'
-	import Heading, { HeadingLevel } from '../text/Heading.svelte'
 	import { pdDeviceStore } from '$lib/stores/pdDeviceStore'
+	import { fly } from 'svelte/transition'
 </script>
 
 <header class="flex flex-row items-center justify-between">
-	<Heading level={HeadingLevel.H1} class="h-[50px] leading-[50px]">
-		<a href="/">pdportal</a>
-	</Heading>
+	<div class="flex flex-row items-center gap-3">
+		<h1 class="font-bold font-display text-5xl text-black">
+			<a href="/" class="block -mt-1">pdportal</a>
+		</h1>
+
+		{#if $pdDeviceStore.device}
+			<div
+				class="rounded-full w-2 h-2 bg-pd-yellow"
+				in:fly={{
+					duration: 240,
+					x: -12
+				}}
+				out:fly={{
+					duration: 300,
+					x: -12
+				}}
+			/>
+		{/if}
+	</div>
 
 	<nav>
-		<ul class="flex gap-4 text-neutral-700">
+		<ul class="flex gap-4">
 			{#if localStorage.enableDevTools}
 				<HeaderLink href="/just-dev-things">
 					<TerminalSquare />

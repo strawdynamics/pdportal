@@ -22,11 +22,11 @@
 	<link
 		rel="stylesheet"
 		type="text/css"
-		href="https://fonts.googleapis.com/css?family=Josefin+Sans:700"
+		href="https://fonts.googleapis.com/css?family=Red+Hat+Display:700"
 	/>
 </svelte:head>
 
-<main class="max-w-2xl p-6 text-lg">
+<main class="max-w-2xl p-6 text-lg text-neutral-700">
 	<div class="mb-8">
 		<AppHeader />
 	</div>

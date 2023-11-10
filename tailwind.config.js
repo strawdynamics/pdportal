@@ -4,7 +4,7 @@ export default {
 	theme: {
 		fontFamily: {
 			sans: ['Inconsolata', 'monospace', 'sans-serif'],
-			display: ['Josefin Sans', 'sans-serif']
+			display: ['Red Hat Display', 'sans-serif']
 		},
 		extend: {
 			colors: {
