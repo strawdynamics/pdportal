@@ -13,13 +13,11 @@
 
 	<nav>
 		<ul class="flex gap-4 text-neutral-700">
-			{#if $pdDeviceStore.device}
-				<div class="text-neutral-500">
-					<HeaderLink href="/just-dev-things">
-						<TerminalSquare />
-						<span class="sr-only">Dev tools</span>
-					</HeaderLink>
-				</div>
+			{#if localStorage.enableDevTools}
+				<HeaderLink href="/just-dev-things">
+					<TerminalSquare />
+					<span class="sr-only">Dev tools</span>
+				</HeaderLink>
 			{/if}
 
 			<HeaderLink href="/about">

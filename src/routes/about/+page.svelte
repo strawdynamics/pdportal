@@ -10,12 +10,16 @@
 	</p>
 
 	<p>
-		I'll be honest, there's not much to play yet! If you're interested in trying
-		out the technology, grab <Link
-			href="https://paulstraw.itch.io/net-tac-toe"
-			target="_blank">Net-tac-toe on itch</Link
-		>. It's… well, it's tic-tac-toe. But over the internet! With another
-		Playdate!
+		There's <em>nothing</em> to play just yet, sit tight! Though there is
+		working bidirectional communication, if you know where to look.
+		<span class="line-through">
+			I'll be honest, there's not much to play yet! If you're interested in
+			trying out the technology, grab <Link
+				href="https://paulstraw.itch.io/net-tac-toe"
+				target="_blank">Net-tac-toe on itch</Link
+			>. It's… well, it's tic-tac-toe. But over the internet! With another
+			Playdate!
+		</span>
 	</p>
 
 	<p>

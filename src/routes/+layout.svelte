@@ -1,7 +1,15 @@
 <script>
 	import '../app.css'
 
+	import { onMount } from 'svelte'
 	import AppHeader from '$lib/components/appHeader/AppHeader.svelte'
+
+	onMount(() => {
+		console.log(
+			'%c Welcome, explorer! Try running `localStorage.enableDevTools = true` and refreshing.',
+			'font-size: 18px; font-weight: bold; font-family: sans-serif'
+		)
+	})
 </script>
 
 <svelte:head>
