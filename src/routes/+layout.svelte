@@ -18,7 +18,7 @@
 </svelte:head>
 
 <main class="max-w-2xl p-6 text-lg">
-	<div class="mb-10">
+	<div class="mb-8">
 		<AppHeader />
 	</div>
 

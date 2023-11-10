@@ -18,9 +18,9 @@
 	})
 
 	const headingLevelClasses = Object.freeze({
-		[HeadingLevel.H1]: 'text-5xl font-bold font-display',
-		[HeadingLevel.H2]: 'h2',
-		[HeadingLevel.H3]: 'h3',
+		[HeadingLevel.H1]: 'text-5xl font-bold font-display leading-relaxed',
+		[HeadingLevel.H2]: 'text-4xl font-bold leading-relaxed',
+		[HeadingLevel.H3]: 'text-2xl font-bold leading-relaxed',
 		[HeadingLevel.H4]: 'h4',
 		[HeadingLevel.H5]: 'h5',
 		[HeadingLevel.H6]: 'h6'
@@ -30,10 +30,13 @@
 <script lang="ts">
 	export let level: HeadingLevel
 
+	let className = ''
+	export { className as class }
+
 	$: tag = headingLevelTags[level]
 	$: classes = headingLevelClasses[level]
 </script>
 
-<svelte:element this={tag} class={classes}>
+<svelte:element this={tag} class="{classes} {className}">
 	<slot />
 </svelte:element>
