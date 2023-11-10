@@ -2,7 +2,17 @@
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
-		extend: {}
+		fontFamily: {
+			sans: ['Inconsolata', 'monospace', 'sans-serif'],
+			display: ['Josefin Sans', 'sans-serif']
+		},
+		extend: {
+			colors: {
+				pd: {
+					yellow: '#ffc500'
+				}
+			}
+		}
 	},
 	plugins: []
-};
+}
