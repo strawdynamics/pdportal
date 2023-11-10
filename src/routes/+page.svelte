@@ -1,18 +1,16 @@
 <script lang="ts">
 	import Button from '$lib/components/form/Button.svelte'
 	import Link from '$lib/components/text/Link.svelte'
-	import { pdDevice, supportsSerial } from '$lib/stores/pdDevice'
+	import { pdDeviceStore, supportsSerial } from '$lib/stores/pdDeviceStore'
 
 	const connect = async () => {
-		pdDevice.connect()
+		pdDeviceStore.connect()
 	}
 </script>
 
 {#if supportsSerial}
-	<p>supported</p>
-
-	{#if $pdDevice}
-		<p>Connected!</p>
+	{#if $pdDeviceStore.device}
+		<p>Connected to Playdate {$pdDeviceStore.serial}</p>
 	{:else}
 		<Button on:click={connect}>Connect</Button>
 	{/if}

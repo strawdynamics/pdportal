@@ -3,7 +3,7 @@
 
 	import HeaderLink from './HeaderLink.svelte'
 	import Heading, { HeadingLevel } from '../text/Heading.svelte'
-	import { pdDevice } from '$lib/stores/pdDevice'
+	import { pdDeviceStore } from '$lib/stores/pdDeviceStore'
 </script>
 
 <header class="flex flex-row items-center justify-between">
@@ -13,7 +13,7 @@
 
 	<nav>
 		<ul class="flex gap-4 text-neutral-700">
-			{#if $pdDevice}
+			{#if $pdDeviceStore.device}
 				<div class="text-neutral-500">
 					<HeaderLink href="/just-dev-things">
 						<TerminalSquare />

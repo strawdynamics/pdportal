@@ -11,39 +11,58 @@ import {
 	type Invalidator
 } from 'svelte/store'
 
+interface PdDeviceStoreData {
+	device: PlaydateDevice | null
+	serial: string | null
+}
+
 class PdDeviceStore {
-	private writable: Writable<PlaydateDevice | null>
+	private writable: Writable<PdDeviceStoreData>
 
 	subscribe: (
 		this: void,
-		run: Subscriber<PlaydateDevice | null>,
-		invalidate?: Invalidator<PlaydateDevice | null>
+		run: Subscriber<PdDeviceStoreData>,
+		invalidate?: Invalidator<PdDeviceStoreData>
 	) => Unsubscriber
 
 	constructor() {
-		this.writable = writable(null)
+		this.writable = writable({
+			device: null,
+			serial: null
+		})
 
 		this.subscribe = this.writable.subscribe
+	}
+
+	private resetWritable() {
+		this.writable.update((state) => {
+			state.device = null
+			state.serial = null
+			return state
+		})
 	}
 
 	async connect() {
 		try {
 			const device = await requestConnectPlaydate()
-			this.writable.set(device)
-
 			await device.open()
-
 			const serial = await device.getSerial()
-			console.log(`Connected to Playdate ${serial}`)
+
+			this.writable.update((state) => {
+				state.device = device
+				state.serial = serial
+				return state
+			})
 
 			device.on('disconnect', () => {
-				this.writable.set(null)
+				this.resetWritable()
 			})
 
 			device.on('data', (theData) => {
 				console.warn('pddata', new TextDecoder().decode(theData))
 			})
 		} catch (err) {
+			this.resetWritable()
 			console.warn('something has gone wrong')
 			console.warn(err.message)
 		}
@@ -60,4 +79,4 @@ export const supportsSerial = (() => {
 	return out
 })()
 
-export const pdDevice = new PdDeviceStore()
+export const pdDeviceStore = new PdDeviceStore()

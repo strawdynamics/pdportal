@@ -3,7 +3,7 @@
 	import Button from '$lib/components/form/Button.svelte'
 	import TextInput from '$lib/components/form/TextInput.svelte'
 	import Heading, { HeadingLevel } from '$lib/components/text/Heading.svelte'
-	import { pdDevice } from '$lib/stores/pdDevice'
+	import { pdDeviceStore } from '$lib/stores/pdDeviceStore'
 	import { downloadBufferAsFile, hexStringToBuffer } from '$lib/util/buffer'
 	import { getGlobalFunctionCallBytecode } from '$lib/util/luaBytecode'
 	import { onMount } from 'svelte'
@@ -15,7 +15,7 @@
 	$: bytecode = getGlobalFunctionCallBytecode(functionName, payload)
 
 	onMount(async () => {
-		if (!$pdDevice) {
+		if (!$pdDeviceStore.device) {
 			await goto('/')
 		}
 	})
@@ -27,12 +27,12 @@
 
 	const evalPd = () => {
 		console.warn('epd', hexStringToBuffer(bytecode))
-		if (!$pdDevice) {
+		if (!$pdDeviceStore.device) {
 			alert('No device connected!')
 			return
 		}
 
-		$pdDevice.evalLuaPayload(hexStringToBuffer(bytecode), 500)
+		$pdDeviceStore.device.evalLuaPayload(hexStringToBuffer(bytecode), 500)
 	}
 </script>
 
