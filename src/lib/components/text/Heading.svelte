@@ -21,7 +21,7 @@
 		[HeadingLevel.H1]: 'text-5xl font-bold font-display leading-relaxed',
 		[HeadingLevel.H2]: 'text-4xl font-bold leading-relaxed',
 		[HeadingLevel.H3]: 'text-2xl font-bold leading-relaxed',
-		[HeadingLevel.H4]: 'h4',
+		[HeadingLevel.H4]: 'text-xl font-bold font-display leading-relaxed',
 		[HeadingLevel.H5]: 'h5',
 		[HeadingLevel.H6]: 'h6'
 	})

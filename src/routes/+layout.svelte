@@ -3,6 +3,7 @@
 
 	import { onMount } from 'svelte'
 	import AppHeader from '$lib/components/appHeader/AppHeader.svelte'
+	import ToastList from '$lib/components/toast/ToastList.svelte'
 
 	onMount(() => {
 		console.log(
@@ -32,3 +33,7 @@
 
 	<slot />
 </main>
+
+<div class="fixed top-0 right-0">
+	<ToastList />
+</div>

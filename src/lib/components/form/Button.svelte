@@ -5,6 +5,6 @@
 
 <button
 	on:click
-	class="py-0.5 px-4 bg-pd-yellow hover:bg-pd-yellow/80 {className}"
+	class="py-0.5 px-4 bg-pd-yellow hover:bg-pd-yellow/80 rounded-md {className}"
 	><slot /></button
 >

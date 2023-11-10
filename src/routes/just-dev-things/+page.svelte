@@ -2,7 +2,9 @@
 	import Button from '$lib/components/form/Button.svelte'
 	import TextInput from '$lib/components/form/TextInput.svelte'
 	import Heading, { HeadingLevel } from '$lib/components/text/Heading.svelte'
+	import ToastList from '$lib/components/toast/ToastList.svelte'
 	import { pdDeviceStore } from '$lib/stores/pdDeviceStore'
+	import { ToastLevel, toastStore } from '$lib/stores/toastStore'
 	import { downloadBufferAsFile, hexStringToBuffer } from '$lib/util/buffer'
 	import { getGlobalFunctionCallBytecode } from '$lib/util/luaBytecode'
 	import { onMount } from 'svelte'
@@ -43,6 +45,29 @@
 
 	<Button on:click={download}>Download</Button>
 	<Button on:click={evalPd}>Eval</Button>
+</section>
+
+<section>
+	<Heading level={HeadingLevel.H3}>Toasts</Heading>
+
+	<Button
+		on:click={() => {
+			toastStore.addToast(
+				'Greetings, toasters',
+				'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+				ToastLevel.Info
+			)
+		}}>Info toast</Button
+	>
+	<Button
+		on:click={() => {
+			toastStore.addToast(
+				'Oh no, Mr. Bill!',
+				'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+				ToastLevel.Warning
+			)
+		}}>Warning toast</Button
+	>
 </section>
 
 <section>

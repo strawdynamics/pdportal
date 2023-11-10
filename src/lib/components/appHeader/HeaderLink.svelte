@@ -10,7 +10,7 @@
 	<a
 		{href}
 		target={target === '_self' ? null : target}
-		class="p-1 block rounded-full relative active:top-[1px]"
+		class="p-1 block rounded-md relative active:top-[1px]"
 		class:bg-pd-yellow={$page.url.pathname === href}
 		class:text-black={$page.url.pathname === href}
 	>
