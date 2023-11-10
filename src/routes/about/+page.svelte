@@ -34,8 +34,7 @@
 
 	<div>
 		<p>
-			© 2023 <Link href="https://paulstraw.com" target="_blank">Paul Straw</Link
-			>
+			© <Link href="https://paulstraw.com" target="_blank">Paul Straw</Link>
 		</p>
 
 		<p>
