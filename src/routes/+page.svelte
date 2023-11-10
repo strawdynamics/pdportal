@@ -16,7 +16,7 @@
 	{/if}
 {:else}
 	<p>
-		Your browser doesn't support Web Serial. Can I Use provides an up to date
+		Your browser doesn't support Web Serial. Can I Use provides an up-to-date
 		list of <Link href="https://caniuse.com/web-serial" target="_blank"
 			>browsers with Web Serial support</Link
 		>.
