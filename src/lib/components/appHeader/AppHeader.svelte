@@ -8,7 +8,9 @@
 
 <header class="flex flex-row items-center justify-between">
 	<div class="flex flex-row items-center gap-3">
-		<h1 class="font-bold font-display text-5xl text-black">
+		<h1
+			class="relative font-bold font-display text-5xl text-black hover:text-neutral-700 active:top-[1px]"
+		>
 			<a href="/" class="block -mt-1">pdportal</a>
 		</h1>
 
