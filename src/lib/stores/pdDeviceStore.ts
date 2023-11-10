@@ -10,6 +10,7 @@ import {
 	type Subscriber,
 	type Invalidator
 } from 'svelte/store'
+import { ToastLevel, toastStore } from './toastStore'
 
 interface PdDeviceStoreData {
 	device: PlaydateDevice | null
@@ -61,10 +62,18 @@ class PdDeviceStore {
 			device.on('data', (theData) => {
 				console.warn('pddata', new TextDecoder().decode(theData))
 			})
-		} catch (err) {
+		} catch (err: unknown) {
 			this.resetWritable()
-			console.warn('something has gone wrong')
-			console.warn(err.message)
+
+			let errorMessage = 'Unknown error'
+			if (err instanceof Error) {
+				errorMessage = err.message
+			}
+			toastStore.addToast(
+				'Error connecting to Playdate',
+				errorMessage,
+				ToastLevel.Warning
+			)
 		}
 	}
 }
