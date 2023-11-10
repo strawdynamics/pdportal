@@ -1,5 +1,4 @@
 <script lang="ts">
-	import PlaydateSerialConnector from '$lib/components/debug/PlaydateSerialConnector.svelte'
 	import Button from '$lib/components/form/Button.svelte'
 	import TextInput from '$lib/components/form/TextInput.svelte'
 	import Heading, { HeadingLevel } from '$lib/components/text/Heading.svelte'
@@ -53,4 +52,16 @@
 	<Button on:click={evalPd}>Eval</Button>
 </section>
 
-<PlaydateSerialConnector />
+<section>
+	<Heading level={HeadingLevel.H3}>Device info</Heading>
+
+	{#if $pdDeviceStore.device}
+		<pre class="text-xs h-[200px] overflow-auto">{JSON.stringify(
+				$pdDeviceStore,
+				null,
+				2
+			)}</pre>
+	{:else}
+		<Button on:click={connect}>Connect</Button>
+	{/if}
+</section>

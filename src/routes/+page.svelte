@@ -10,7 +10,7 @@
 
 {#if supportsSerial}
 	{#if $pdDeviceStore.device}
-		<p>Connected to Playdate {$pdDeviceStore.serial}</p>
+		<p>Connected to Playdate <strong>{$pdDeviceStore.serial}</strong></p>
 	{:else}
 		<Button on:click={connect}>Connect</Button>
 	{/if}
