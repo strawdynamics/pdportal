@@ -54,6 +54,11 @@ class PeerStore extends EventEmitter {
 		this.peer.on('error', this.handlePeerError)
 	}
 
+	destroyPeer() {
+		this.peer?.destroy()
+		// TODO: Other cleanup
+	}
+
 	connect(otherPeerId: string) {
 		if (!this.peer) {
 			throw new Error("Can't connect to another peer before we have our own!")

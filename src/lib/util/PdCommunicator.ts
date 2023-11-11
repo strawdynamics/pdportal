@@ -6,7 +6,7 @@ import { splitBuffer } from './buffer'
 import { CommandBuffer } from './CommandBuffer'
 
 // Read data from the Playdate, send it on appropriately
-// Take data from the peer store, send it to the Playdate (probably needs to be buffered in some way)
+// Take data from the peer store, send it to the Playdate
 export class PdCommunicator {
 	// https://en.wikipedia.org/wiki/C0_and_C1_control_codes#Field_separators
 	// https://www.lammertbies.nl/comm/info/ascii-characters
@@ -66,7 +66,6 @@ export class PdCommunicator {
 	}
 
 	handleDataFromPeerConn = (conn: DataConnection, data: unknown) => {
-		console.warn('handleDataFromPeerConn', conn, data)
 		if (pdDeviceStore.device) {
 			const bytecode = getGlobalFunctionCallBytecode(
 				'pdpOnPeerConnData',
