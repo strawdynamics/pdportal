@@ -14,6 +14,7 @@ export class PdCommunicator {
 	static readonly argumentSeparator = String.fromCharCode(31) // US (␟)
 	static readonly commands = Object.freeze({
 		log: 'l',
+		keepalive: 'k',
 		sendToPeerConn: 'p'
 	})
 
@@ -69,7 +70,9 @@ export class PdCommunicator {
 				case PdCommunicator.commands.log:
 					console.log(restArgs)
 					break
-
+				case PdCommunicator.commands.keepalive:
+					this.handleKeepaliveCommand()
+					break
 				default:
 					console.error('[PdCommunicator] Unknown command', command)
 					break
@@ -77,7 +80,7 @@ export class PdCommunicator {
 		})
 	}
 
-	handleDataFromPeerConn = (conn: DataConnection, data: unknown) => {
+	handleDataFromPeerConn = async (conn: DataConnection, data: unknown) => {
 		if (pdDeviceStore.device) {
 			const bytecode = getGlobalFunctionCallBytecode(
 				'pdpOnPeerConnData',
@@ -86,51 +89,55 @@ export class PdCommunicator {
 					payload: data
 				})
 			)
-			pdDeviceStore.evalLuaPayload(bytecode)
+			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
 	}
 
-	handlePeerOpen = (peerId: string) => {
+	handlePeerOpen = async (peerId: string) => {
 		if (pdDeviceStore.device) {
 			const bytecode = getGlobalFunctionCallBytecode('pdpOnPeerOpen', peerId)
-			pdDeviceStore.evalLuaPayload(bytecode)
+			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
 	}
 
-	handlePeerClose = () => {
+	handlePeerClose = async () => {
 		if (pdDeviceStore.device) {
 			const bytecode = getGlobalFunctionCallBytecode('pdpOnPeerOpen', '')
-			pdDeviceStore.evalLuaPayload(bytecode)
+			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
 	}
 
-	handlePeerConnection = (conn: DataConnection) => {
+	handlePeerConnection = async (conn: DataConnection) => {
 		if (pdDeviceStore.device) {
 			const bytecode = getGlobalFunctionCallBytecode(
 				'pdpOnPeerConnection',
 				conn.peer
 			)
-			pdDeviceStore.evalLuaPayload(bytecode)
+			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
 	}
 
-	handlePeerConnOpen = (conn: DataConnection) => {
+	handlePeerConnOpen = async (conn: DataConnection) => {
 		if (pdDeviceStore.device) {
 			const bytecode = getGlobalFunctionCallBytecode(
 				'pdpOnPeerConnOpen',
 				conn.peer
 			)
-			pdDeviceStore.evalLuaPayload(bytecode)
+			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
 	}
 
-	handlePeerConnClose = (conn: DataConnection) => {
+	handlePeerConnClose = async (conn: DataConnection) => {
 		if (pdDeviceStore.device) {
 			const bytecode = getGlobalFunctionCallBytecode(
 				'pdpOnPeerConnClose',
 				conn.peer
 			)
-			pdDeviceStore.evalLuaPayload(bytecode)
+			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
+	}
+
+	private handleKeepaliveCommand() {
+		pdDeviceStore.evalLuaPayload(getGlobalFunctionCallBytecode('_pdpKeepalive'))
 	}
 }

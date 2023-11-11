@@ -78,9 +78,8 @@ class PdDeviceStore extends EventEmitter {
 
 			this.pollSerialLoop()
 
-			this.evalLuaPayload(
-				getGlobalFunctionCallBytecode('pdpOnConnect', JSON.stringify({}))
-			)
+			await this.evalLuaPayload(getGlobalFunctionCallBytecode('_pdpOnConnect'))
+			await this.evalLuaPayload(getGlobalFunctionCallBytecode('pdpOnConnect'))
 
 			this.writable.update((state) => {
 				state.device = this.device

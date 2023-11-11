@@ -16,13 +16,13 @@
 		downloadBufferAsFile(buf, `call_${functionName}.luac`)
 	}
 
-	const evalPd = () => {
+	const evalPd = async () => {
 		if (!$pdDeviceStore.device) {
 			alert('No device connected!')
 			return
 		}
 
-		pdDeviceStore.evalLuaPayload(bytecode)
+		await pdDeviceStore.evalLuaPayload(bytecode)
 	}
 </script>
 

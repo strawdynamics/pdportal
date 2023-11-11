@@ -1,8 +1,14 @@
+import "CoreLibs/timer"
+
 -- These functions should be implemented/overridden by each app, and will be
 -- called by the pdportal web app as appropriate.
 
-pdpOnConnect = function(arg)
+pdpOnConnect = function()
 	-- Called by pdportal web app after serial connection established.
+end
+
+pdpOnDisconnect = function()
+	-- Called by Lua code when serial keepalive fails.
 end
 
 pdpOnPeerOpen = function(peerId)
@@ -38,19 +44,6 @@ end
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
--- Don't change these functions unless you know what you're doing! You can
--- safely call the non `_`-prefixed ones, though.
-
-pdpEcho = function(arg)
-	PdPortal.sendCommand(PdPortal.commands.log, 'pdpEcho', arg)
-end
-
-_pdpOnConnect = function()
-	-- TODO: How does PD know when serial disconnects? Some kind of keepalive pong with the browser, I guess.
-end
-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-
 -- The PdPortal class can be used to communicate from the Playdate back to the
 -- browser (and other Playdates)
 
@@ -63,6 +56,7 @@ local jsonEncode <const> = json.encode
 
 PdPortal.commands = {
 	log = 'l',
+	keepalive = 'k',
 	sendToPeerConn = 'p',
 }
 
@@ -86,4 +80,32 @@ end
 PdPortal.sendToPeerConn = function(peerConnId, payload)
 	local jsonPayload = jsonEncode(payload)
 	self:sendCommand(PdPortal.commands.sendToPeerConn, peerConnId, jsonPayload)
+end
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+-- Don't change these functions unless you know what you're doing! You can
+-- safely call the non `_`-prefixed ones, though.
+
+pdpEcho = function(arg)
+	PdPortal.sendCommand(PdPortal.commands.log, 'pdpEcho', arg)
+end
+
+local timer = playdate.timer
+local serialKeepaliveTimer = nil
+_pdpOnConnect = function()
+	_pdpKeepalive()
+end
+
+_pdpKeepalive = function()
+	if serialKeepaliveTimer ~= nil then
+		serialKeepaliveTimer:pause()
+		serialKeepaliveTimer:remove()
+		serialKeepaliveTimer = nil
+	end
+
+	timer.performAfterDelay(500, function()
+		serialKeepaliveTimer = playdate.timer.new(100, pdpOnDisconnect)
+		PdPortal.sendCommand(PdPortal.commands.keepalive)
+	end)
 end

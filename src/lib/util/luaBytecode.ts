@@ -35,7 +35,7 @@ const globalFunctionCallPost = '8101000080850100000000808081855F454E56'
 
 export const getGlobalFunctionCallBytecode = (
 	functionName: string,
-	stringArg: string
+	stringArg: string = ''
 ) => {
 	return [
 		globalFunctionCallPre,
