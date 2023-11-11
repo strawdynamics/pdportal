@@ -22,7 +22,7 @@
 			return
 		}
 
-		pdDeviceStore.evalLuaPayload(hexStringToBuffer(bytecode))
+		pdDeviceStore.evalLuaPayload(bytecode)
 	}
 </script>
 

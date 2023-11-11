@@ -13,6 +13,8 @@ import {
 import { ToastLevel, toastStore } from './toastStore'
 import { EventEmitter } from '$lib/util/EventEmitter'
 import { stringToByteArray } from '$lib/util/string'
+import { hexStringToBuffer } from '$lib/util/buffer'
+import { getGlobalFunctionCallBytecode } from '$lib/util/luaBytecode'
 
 interface PdDeviceStoreData {
 	device: PlaydateDevice | null
@@ -48,15 +50,16 @@ class PdDeviceStore extends EventEmitter {
 		})
 	}
 
-	async evalLuaPayload(payload: Uint8Array | ArrayBufferLike) {
+	async evalLuaPayload(payload: string) {
 		if (!this.device) {
 			throw new Error('No Playdate connected to eval against!')
 		}
+		const arrayPayload = hexStringToBuffer(payload)
 
-		const cmd = `eval ${payload.byteLength}\n`
-		const data = new Uint8Array(cmd.length + payload.byteLength)
+		const cmd = `eval ${arrayPayload.byteLength}\n`
+		const data = new Uint8Array(cmd.length + arrayPayload.byteLength)
 		data.set(stringToByteArray(cmd), 0)
-		data.set(new Uint8Array(payload), cmd.length)
+		data.set(new Uint8Array(arrayPayload), cmd.length)
 		await this.device.serial.write(data)
 	}
 
@@ -74,6 +77,10 @@ class PdDeviceStore extends EventEmitter {
 			const serial = await this.device.getSerial()
 
 			this.pollSerialLoop()
+
+			this.evalLuaPayload(
+				getGlobalFunctionCallBytecode('pdpOnConnect', JSON.stringify({}))
+			)
 
 			this.writable.update((state) => {
 				state.device = this.device

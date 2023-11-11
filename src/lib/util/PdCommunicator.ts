@@ -2,7 +2,7 @@ import { pdDeviceStore } from '$lib/stores/pdDeviceStore'
 import { peerStore } from '$lib/stores/peerStore'
 import type { DataConnection } from 'peerjs'
 import { getGlobalFunctionCallBytecode } from './luaBytecode'
-import { hexStringToBuffer, splitBuffer } from './buffer'
+import { splitBuffer } from './buffer'
 import { CommandBuffer } from './CommandBuffer'
 
 // Read data from the Playdate, send it on appropriately
@@ -59,7 +59,7 @@ export class PdCommunicator {
 					break
 
 				default:
-					console.error('oh no mr bill', command)
+					console.error('[PdCommunicator] Unknown command', command)
 					break
 			}
 		})
@@ -75,7 +75,7 @@ export class PdCommunicator {
 					payload: data
 				})
 			)
-			pdDeviceStore.evalLuaPayload(hexStringToBuffer(bytecode))
+			pdDeviceStore.evalLuaPayload(bytecode)
 		}
 	}
 }
