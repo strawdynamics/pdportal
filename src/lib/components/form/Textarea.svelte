@@ -10,5 +10,5 @@
 <label>
 	<p>{label}</p>
 
-	<input type="text" class="border {className}" {placeholder} bind:value />
+	<textarea class="border {className}" {placeholder} bind:value />
 </label>

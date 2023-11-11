@@ -20,8 +20,10 @@
 	const headingLevelClasses = Object.freeze({
 		[HeadingLevel.H1]:
 			'text-5xl font-bold font-display leading-relaxed text-black',
-		[HeadingLevel.H2]: 'text-4xl font-bold leading-relaxed text-black',
-		[HeadingLevel.H3]: 'text-2xl font-bold leading-relaxed text-black',
+		[HeadingLevel.H2]:
+			'text-4xl font-bold font-display leading-relaxed text-black',
+		[HeadingLevel.H3]:
+			'text-2xl font-bold font-display leading-relaxed text-black',
 		[HeadingLevel.H4]:
 			'text-xl font-bold font-display leading-relaxed text-black',
 		[HeadingLevel.H5]: 'text-black',
