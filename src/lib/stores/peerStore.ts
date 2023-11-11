@@ -65,7 +65,7 @@ class PeerStore extends EventEmitter {
 		}
 
 		const conn = this.peer.connect(otherPeerId.toUpperCase())
-		// https://peerjs.com/docs/#dataconnection-on
+		// https://peerjs.com/docs/#dataconnection-on-open
 		conn.on('open', () => {
 			this.handlePeerConnOpen(conn)
 		})
@@ -100,6 +100,7 @@ class PeerStore extends EventEmitter {
 			state.peerId = peerId
 			return state
 		})
+		this.emit('peerOpen', peerId)
 	}
 
 	// https://peerjs.com/docs/#peeron-close
@@ -110,11 +111,14 @@ class PeerStore extends EventEmitter {
 			state.peerId = null
 			return state
 		})
+		this.emit('peerClose')
 	}
 
+	// Called after a remote peer opens a connection to us
 	// https://peerjs.com/docs/#peeron-connection
 	private handlePeerConnection = (conn: DataConnection) => {
 		this.addPeerConn(conn)
+		this.emit('peerConnection', conn)
 	}
 
 	// https://peerjs.com/docs/#peeron-error
@@ -130,12 +134,15 @@ class PeerStore extends EventEmitter {
 		}
 	}
 
+	// Called after we finish opening connection to a remote peer
 	private handlePeerConnOpen(conn: DataConnection) {
 		this.addPeerConn(conn)
+		this.emit('peerConnOpen', conn)
 	}
 
 	private handlePeerConnClose(conn: DataConnection) {
 		this.removePeerConn(conn)
+		this.emit('peerConnClose', conn)
 	}
 
 	private handlePeerConnError(

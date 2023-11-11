@@ -21,13 +21,25 @@ export class PdCommunicator {
 	textDecoder = new TextDecoder()
 
 	constructor() {
-		peerStore.on('peerConnData', this.handleDataFromPeerConn)
 		pdDeviceStore.on('data', this.handleDataFromPlaydate)
+
+		peerStore.on('peerOpen', this.handlePeerOpen)
+		peerStore.on('peerClose', this.handlePeerClose)
+		peerStore.on('peerConnData', this.handleDataFromPeerConn)
+		peerStore.on('peerConnection', this.handlePeerConnection)
+		peerStore.on('peerConnOpen', this.handlePeerConnOpen)
+		peerStore.on('peerConnClose', this.handlePeerConnClose)
 	}
 
 	destroy() {
-		peerStore.off('peerConnData', this.handleDataFromPeerConn)
 		pdDeviceStore.off('data', this.handleDataFromPlaydate)
+
+		peerStore.off('peerOpen', this.handlePeerOpen)
+		peerStore.off('peerClose', this.handlePeerClose)
+		peerStore.off('peerConnData', this.handleDataFromPeerConn)
+		peerStore.off('peerConnection', this.handlePeerConnection)
+		peerStore.off('peerConnOpen', this.handlePeerConnOpen)
+		peerStore.off('peerConnClose', this.handlePeerConnClose)
 	}
 
 	handleDataFromPlaydate = (data: Uint8Array) => {
@@ -73,6 +85,50 @@ export class PdCommunicator {
 					peerConnId: conn.peer,
 					payload: data
 				})
+			)
+			pdDeviceStore.evalLuaPayload(bytecode)
+		}
+	}
+
+	handlePeerOpen = (peerId: string) => {
+		if (pdDeviceStore.device) {
+			const bytecode = getGlobalFunctionCallBytecode('pdpOnPeerOpen', peerId)
+			pdDeviceStore.evalLuaPayload(bytecode)
+		}
+	}
+
+	handlePeerClose = () => {
+		if (pdDeviceStore.device) {
+			const bytecode = getGlobalFunctionCallBytecode('pdpOnPeerOpen', '')
+			pdDeviceStore.evalLuaPayload(bytecode)
+		}
+	}
+
+	handlePeerConnection = (conn: DataConnection) => {
+		if (pdDeviceStore.device) {
+			const bytecode = getGlobalFunctionCallBytecode(
+				'pdpOnPeerConnection',
+				conn.peer
+			)
+			pdDeviceStore.evalLuaPayload(bytecode)
+		}
+	}
+
+	handlePeerConnOpen = (conn: DataConnection) => {
+		if (pdDeviceStore.device) {
+			const bytecode = getGlobalFunctionCallBytecode(
+				'pdpOnPeerConnOpen',
+				conn.peer
+			)
+			pdDeviceStore.evalLuaPayload(bytecode)
+		}
+	}
+
+	handlePeerConnClose = (conn: DataConnection) => {
+		if (pdDeviceStore.device) {
+			const bytecode = getGlobalFunctionCallBytecode(
+				'pdpOnPeerConnClose',
+				conn.peer
 			)
 			pdDeviceStore.evalLuaPayload(bytecode)
 		}
