@@ -13,17 +13,16 @@
 
 	const download = () => {
 		const buf = hexStringToBuffer(bytecode)
-		downloadBufferAsFile(buf, 'maybe.luac')
+		downloadBufferAsFile(buf, `call_${functionName}.luac`)
 	}
 
 	const evalPd = () => {
-		console.warn('epd', hexStringToBuffer(bytecode))
 		if (!$pdDeviceStore.device) {
 			alert('No device connected!')
 			return
 		}
 
-		$pdDeviceStore.device.evalLuaPayload(hexStringToBuffer(bytecode), 500)
+		pdDeviceStore.evalLuaPayload(hexStringToBuffer(bytecode))
 	}
 </script>
 
@@ -36,7 +35,7 @@
 	</div>
 
 	<pre
-		class="w-[500px] max-w-full break-all whitespace-break-spaces text-xs">{bytecode}</pre>
+		class="w-[500px] max-w-full max-h-[200px] overflow-auto break-all whitespace-break-spaces text-xs">{bytecode}</pre>
 
 	<Button on:click={download}>Download</Button>
 	<Button on:click={evalPd}>Eval</Button>

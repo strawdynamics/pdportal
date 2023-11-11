@@ -9,6 +9,7 @@ import {
 	get
 } from 'svelte/store'
 import { ToastLevel, toastStore } from './toastStore'
+import { EventEmitter } from '$lib/util/EventEmitter'
 
 interface PeerStoreData {
 	peerId: string | null
@@ -16,13 +17,10 @@ interface PeerStoreData {
 	peerConnections: Record<string, DataConnection>
 }
 
-class PeerStore {
+class PeerStore extends EventEmitter {
 	private writable: Writable<PeerStoreData>
 
 	private peer: Peer | null
-
-	// eslint-disable-next-line @typescript-eslint/ban-types
-	private eventHandlers: Record<string, Function[]> = {}
 
 	subscribe: (
 		this: void,
@@ -31,6 +29,8 @@ class PeerStore {
 	) => Unsubscriber
 
 	constructor() {
+		super()
+
 		this.writable = writable({
 			peerId: null,
 			isConnecting: false,
@@ -39,38 +39,6 @@ class PeerStore {
 
 		this.subscribe = this.writable.subscribe
 		this.peer = null
-	}
-
-	// eslint-disable-next-line @typescript-eslint/ban-types
-	on(eventName: string, handler: Function) {
-		if (!this.eventHandlers[eventName]) {
-			this.eventHandlers[eventName] = []
-		}
-
-		this.eventHandlers[eventName].push(handler)
-	}
-
-	// eslint-disable-next-line @typescript-eslint/ban-types
-	off(eventName: string, handlerToRemove: Function) {
-		const handlers = this.eventHandlers[eventName]
-		if (!handlers) {
-			return
-		}
-
-		this.eventHandlers[eventName] = handlers.filter((handler) => {
-			handler !== handlerToRemove
-		})
-	}
-
-	private emit(eventName: string, ...args: unknown[]) {
-		const handlers = this.eventHandlers[eventName]
-		if (!handlers) {
-			return
-		}
-
-		handlers.forEach((handler) => {
-			handler(...args)
-		})
 	}
 
 	initializePeer() {

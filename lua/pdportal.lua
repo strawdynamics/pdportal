@@ -5,9 +5,31 @@ local PdPortal <const> = PdPortal
 
 local jsonEncode <const> = json.encode
 
-function PdPortal:sendToPeerConn(peerConnId, payload)
+PdPortal.commands = {
+	log = 'l',
+	sendToPeerConn = 'p',
+}
+
+local commandSeparator <const> = string.char(30) -- RS (␞)
+local argumentSeparator <const> = string.char(31) -- US (␟)
+
+PdPortal.sendCommand = function(cmdName, ...)
+	local cmd = {cmdName}
+
+	for i = 1, select('#', ...) do
+		local arg = select(i, ...)
+		table.insert(cmd, argumentSeparator)
+		table.insert(cmd, arg)
+	end
+
+	table.insert(cmd, commandSeparator)
+
+	print(table.concat(cmd, ''))
+end
+
+PdPortal.sendToPeerConn = function(peerConnId, payload)
 	local jsonPayload = jsonEncode(payload)
-	print('') -- TODO: ASCII control char to indicate end of message?
+	self:sendCommand(PdPortal.commands.sendToPeerConn, peerConnId, jsonPayload)
 end
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --

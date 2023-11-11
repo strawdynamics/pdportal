@@ -1,15 +1,24 @@
-<script>
+<script lang="ts">
 	import '../app.css'
 
-	import { onMount } from 'svelte'
+	import { onDestroy, onMount } from 'svelte'
 	import AppHeader from '$lib/components/appHeader/AppHeader.svelte'
 	import ToastList from '$lib/components/toast/ToastList.svelte'
+	import { PdCommunicator } from '$lib/util/PdCommunicator'
+
+	let communicator: PdCommunicator | null = null
 
 	onMount(() => {
+		communicator = new PdCommunicator()
+
 		console.log(
 			'%c Welcome, explorer! Try running `localStorage.enableDevTools = true` and refreshing.',
 			'font-size: 18px; font-weight: bold; font-family: sans-serif'
 		)
+	})
+
+	onDestroy(() => {
+		communicator?.destroy()
 	})
 </script>
 

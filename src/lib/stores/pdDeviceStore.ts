@@ -11,13 +11,16 @@ import {
 	type Invalidator
 } from 'svelte/store'
 import { ToastLevel, toastStore } from './toastStore'
+import { EventEmitter } from '$lib/util/EventEmitter'
+import { stringToByteArray } from '$lib/util/string'
 
 interface PdDeviceStoreData {
 	device: PlaydateDevice | null
 	serial: string | null
 }
 
-class PdDeviceStore {
+class PdDeviceStore extends EventEmitter {
+	public device: PlaydateDevice | null = null
 	private writable: Writable<PdDeviceStoreData>
 
 	subscribe: (
@@ -27,6 +30,8 @@ class PdDeviceStore {
 	) => Unsubscriber
 
 	constructor() {
+		super()
+
 		this.writable = writable({
 			device: null,
 			serial: null
@@ -43,24 +48,42 @@ class PdDeviceStore {
 		})
 	}
 
+	async evalLuaPayload(payload: Uint8Array | ArrayBufferLike) {
+		if (!this.device) {
+			throw new Error('No Playdate connected to eval against!')
+		}
+
+		const cmd = `eval ${payload.byteLength}\n`
+		const data = new Uint8Array(cmd.length + payload.byteLength)
+		data.set(stringToByteArray(cmd), 0)
+		data.set(new Uint8Array(payload), cmd.length)
+		await this.device.serial.write(data)
+	}
+
+	private async pollSerialLoop() {
+		while (this.device && this.device.port.readable) {
+			const bytes = await this.device.serial.readBytes()
+			this.emit('data', bytes)
+		}
+	}
+
 	async connect() {
 		try {
-			const device = await requestConnectPlaydate()
-			await device.open()
-			const serial = await device.getSerial()
+			this.device = await requestConnectPlaydate()
+			await this.device.open()
+			const serial = await this.device.getSerial()
+
+			this.pollSerialLoop()
 
 			this.writable.update((state) => {
-				state.device = device
+				state.device = this.device
 				state.serial = serial
 				return state
 			})
 
-			device.on('disconnect', () => {
+			this.device.on('disconnect', () => {
+				this.device = null
 				this.resetWritable()
-			})
-
-			device.on('data', (theData) => {
-				console.warn('pddata', new TextDecoder().decode(theData))
 			})
 		} catch (err: unknown) {
 			this.resetWritable()
