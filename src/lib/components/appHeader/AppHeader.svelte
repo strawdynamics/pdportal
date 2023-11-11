@@ -4,19 +4,21 @@
 	import HeaderLink from './HeaderLink.svelte'
 	import { pdDeviceStore } from '$lib/stores/pdDeviceStore'
 	import { fly } from 'svelte/transition'
+	import { version } from '$lib/version'
 </script>
 
 <header class="flex flex-row items-center justify-between">
-	<div class="flex flex-row items-center gap-3">
+	<div class="relative">
 		<h1
 			class="relative font-bold font-display text-5xl text-black hover:text-neutral-700 active:top-[1px]"
 		>
-			<a href="/" class="block -mt-1">pdportal</a>
+			<a href="/" class="inline-block -mt-1">pdportal</a>
+			<span class="text-sm opacity-60">{version}</span>
 		</h1>
 
 		{#if $pdDeviceStore.device}
 			<div
-				class="rounded-full w-2 h-2 bg-pd-yellow"
+				class="absolute bottom-2 -right-4 rounded-full w-2 h-2 bg-pd-yellow"
 				in:fly={{
 					duration: 240,
 					x: -12
