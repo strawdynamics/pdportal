@@ -6,8 +6,8 @@
 	import TextInput from '../form/TextInput.svelte'
 	import Heading, { HeadingLevel } from '../text/Heading.svelte'
 
-	let functionName = 'global1'
-	let payload = 'hey'
+	let functionName = 'pdpEcho'
+	let payload = 'Hello, cool world!'
 
 	$: bytecode = getGlobalFunctionCallBytecode(functionName, payload)
 

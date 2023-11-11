@@ -34,8 +34,12 @@ end
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
--- These functions should be implemented by each app, and will be called by the
--- pdportal web app automatically.
+-- These functions may be implemented/overridden by each app, and will be
+-- called by the pdportal web app as appropriate.
+
+pdpEcho = function(arg)
+	PdPortal.sendCommand(PdPortal.commands.log, 'pdpEcho', arg)
+end
 
 pdpOnConnect = function(arg)
 	-- Called by pdportal web app after serial connection established.
