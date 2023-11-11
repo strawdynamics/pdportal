@@ -38,7 +38,8 @@ end
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
--- Don't change these functions unless you know what you're doing!
+-- Don't change these functions unless you know what you're doing! You can
+-- safely call the non `_`-prefixed ones, though.
 
 pdpEcho = function(arg)
 	PdPortal.sendCommand(PdPortal.commands.log, 'pdpEcho', arg)
