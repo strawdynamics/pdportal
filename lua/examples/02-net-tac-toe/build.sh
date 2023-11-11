@@ -1,9 +1,9 @@
-pdxFile="pdportal-01-simple.pdx"
+pdxFile="pdportal-02-net-tac-toe.pdx"
 
 cp ../../pdportal.lua ./src/pdportal.lua
-pdc src "$pdxFile"
+pdc -q src "$pdxFile"
 
-read -t 5 -p "Run on sim or device? s, d, or blank/wait to skip: " runChoice
+read -p "Run on sim or device? s, d, or blank/wait to skip: " runChoice
 
 if [ "$runChoice" = "s" ]; then
 	open "$pdxFile"

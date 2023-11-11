@@ -1,5 +1,6 @@
 -- Copied during build, you wouldn't normally have to do that
 import "./pdportal"
+
 import "CoreLibs/graphics"
 
 local PdPortal <const> = PdPortal
@@ -13,6 +14,7 @@ playdate.display.setRefreshRate(50)
 function playdate.update()
 	-- Required for serial keepalive
 	timer.updateTimers()
+
 	graphics.clear()
 
 	playdate.graphics.drawTextAligned(
