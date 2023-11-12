@@ -1,17 +1,17 @@
 local geometry <const> = playdate.geometry
 
 local indexPoints <const> = {
-	geometry.point.new(128, 56),
-	geometry.point.new(192, 56),
-	geometry.point.new(256, 56),
+	geometry.point.new(140, 56),
+	geometry.point.new(204, 56),
+	geometry.point.new(268, 56),
 
-	geometry.point.new(128, 120),
-	geometry.point.new(192, 120),
-	geometry.point.new(256, 120),
+	geometry.point.new(140, 120),
+	geometry.point.new(204, 120),
+	geometry.point.new(268, 120),
 
-	geometry.point.new(128, 184),
-	geometry.point.new(192, 184),
-	geometry.point.new(256, 184),
+	geometry.point.new(140, 184),
+	geometry.point.new(204, 184),
+	geometry.point.new(268, 184),
 }
 
 function getIndexPoint(index)

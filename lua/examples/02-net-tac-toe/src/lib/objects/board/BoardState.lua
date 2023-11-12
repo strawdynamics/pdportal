@@ -8,6 +8,12 @@ function BoardState:init()
 	end
 end
 
+function BoardState:update()
+	for i, boardCell in ipairs(self.grid) do
+		boardCell:update()
+	end
+end
+
 function BoardState:trySetCell(row, col, state)
 	local cellIndex = self_:_getCellIndex(row, col)
 	local currentCellState = self.grid[cellIndex].state
@@ -25,7 +31,7 @@ function BoardState:unsetCellHover(row, col)
 	local currentCellState = self.grid[cellIndex].state
 
 	-- Hover state, unset
-	if currentCellState == 3 or currentCellState == 4 then
+	if currentCellState == 4 or currentCellState == 5 then
 		self.grid[cellIndex]:setState(0)
 		return true
 	end
@@ -37,15 +43,15 @@ function BoardState:_getCellIndex(row, col)
 	return ((row - 1) * 3) + col
 end
 
--- Returns 0 for no winner, 1 for x win, 2 for o win
-function BoardState:checkWin()
-	if self:_checkWinForState(1) then
-		return 1
-	elseif self:_checkWinForState(2) then
+-- Returns 1 for no winner, 2 for x win, 3 for o win
+function BoardState:checkWinStatus()
+	if self:_checkWinForState(2) then
 		return 2
+	elseif self:_checkWinForState(3) then
+		return 3
 	end
 
-	return 0
+	return 1
 end
 
 function BoardState:_checkWinForState(s)

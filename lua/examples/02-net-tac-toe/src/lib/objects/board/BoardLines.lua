@@ -10,8 +10,8 @@ local gridLinesHImageTable = graphics.imagetable.new('img/grid-lines-h')
 
 -- leftV, rightV, topH, bottomH
 local lineAnchors <const> = {
-	geometry.point.new(160, 10),
-	geometry.point.new(220, 10),
+	geometry.point.new(158, 10),
+	geometry.point.new(222, 10),
 	geometry.point.new(85, 80),
 	geometry.point.new(85, 140),
 }

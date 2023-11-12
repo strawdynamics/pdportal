@@ -13,6 +13,7 @@ end
 
 function GameplayScreen:update()
 	self._boardLines:update()
+	self._boardState:update()
 end
 
 function GameplayScreen:show()

@@ -2,25 +2,82 @@ class('BoardCell').extends()
 local BoardCell <const> = BoardCell
 
 local geometry <const> = playdate.geometry
+local graphics <const> = playdate.graphics
+local fonts <const> = fonts
 
 local getIndexPoint <const> = getIndexPoint
 
--- TODO: prebuild images: x, o, hoverX, hoverO
+local function makeCharImage(char, graphicsPre, graphicsPost)
+	local charImage = graphics.image.new(60, 60)
 
--- 0 empty, 1 x, 2 o, 3 hoverX, 4 hoverO
+	graphics.pushContext(charImage)
+	graphics.setFont(fonts.pinzelan48)
+
+	graphicsPre()
+
+	graphics.drawTextAligned(char, 30, 0, kTextAlignment.center)
+
+	if graphicsPost then
+		graphicsPost(charImage)
+	end
+
+	graphics.popContext()
+
+	return charImage
+end
+
+local function postFadedCharImage(charImage)
+	-- https://devforum.play.date/t/drawing-faded-text-more-sustainably/7477/2
+	graphics.setStencilImage(charImage)
+	graphics.setPattern({0x0, 0x22, 0x0, 0x88, 0x0, 0x22, 0x0, 0x88})
+	graphics.fillRect(0, 0, 60, 60)
+end
+
+-- Prebuild images: empty, x, o, hoverX, hoverO
+local emptyImage <const> = makeCharImage(' ', function() end)
+local xImage <const> = makeCharImage('x', function()
+	graphics.setImageDrawMode(graphics.kDrawModeFillBlack)
+end)
+local oImage <const> = makeCharImage('o', function()
+	graphics.setImageDrawMode(graphics.kDrawModeFillBlack)
+end)
+local hoverXImage <const> = makeCharImage('x', function()
+	graphics.setImageDrawMode(graphics.kDrawModeFillWhite)
+end, postFadedCharImage)
+local hoverOImage <const> = makeCharImage('o', function()
+	graphics.setImageDrawMode(graphics.kDrawModeFillWhite)
+end, postFadedCharImage)
+
+local stateImages = {
+	emptyImage,
+	xImage,
+	oImage,
+	hoverXImage,
+	hoverOImage,
+}
+
+-- 1 empty, 2 x, 3 o, 4 hoverX, 5 hoverO
 function BoardCell:init(index)
-	self.index = index
-	self.state = 0
+	self._index = index
+	self._state = 1
+	self._point = getIndexPoint(self._index):offsetBy(
+		math.random(-1, 1),
+		math.random(-1, 1)
+	)
+
+	self._sprite = graphics.sprite.new(self:_getImage())
 end
 
 function BoardCell:setState(newState)
-	self.state = newState
+	self._state = newState
 end
 
 function BoardCell:_getImage()
-
+	return stateImages[self._state]
 end
 
 function BoardCell:update()
-	-- draw char
+	local x, y = self._point:unpack()
+
+	self:_getImage():drawAnchored(x, y, 0.5, 0.5)
 end
