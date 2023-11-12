@@ -1,6 +1,7 @@
 -- Copied during build, you wouldn't normally have to do that
 import "./pdportal"
 
+import "CoreLibs/animator"
 import "CoreLibs/graphics"
 import "CoreLibs/object"
 import "CoreLibs/sprites"

@@ -6,6 +6,7 @@ local graphics <const> = playdate.graphics
 local display <const> = playdate.display
 local json <const> = json
 local PdPortal <const> = PdPortal
+local screenWidth, screenHeight = playdate.display.getSize()
 
 function NttGame:init()
 	self.isSerialConnected = false
@@ -123,7 +124,7 @@ function NttGame:_updateBasics()
 
 	graphics.sprite.update()
 
-	playdate.drawFPS(10, 10)
+	playdate.drawFPS(screenWidth - 18, screenHeight - 15)
 end
 
 function NttGame:_updateConnectionState()

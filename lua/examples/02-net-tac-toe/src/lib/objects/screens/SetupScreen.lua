@@ -7,6 +7,8 @@ local fontFamilies <const> = fontFamilies
 local drawTextAlignedStroked <const> = drawTextAlignedStroked
 local screenWidth, screenHeight = playdate.display.getSize()
 local PdPortal <const> = PdPortal
+local easings <const> = playdate.easingFunctions
+local timer <const> = playdate.timer
 
 graphics.pushContext()
 graphics.setFont(fonts.pinzelan48)
@@ -27,7 +29,7 @@ function SetupScreen:init(nttGame)
 end
 
 function SetupScreen:update()
-	titleImage:drawAnchored(screenWidth * 0.5, 60, 0.5, 0.5)
+	titleImage:drawAnchored(screenWidth * 0.5, 50 + self._titleTextAnimator:currentValue(), 0.5, 0)
 
 	local setupText = graphics.getLocalizedText('setup.disconnected')
 	if self.game.isSerialConnected then
@@ -59,15 +61,50 @@ function SetupScreen:update()
 		graphics.popContext()
 	end
 
-	self._setupTextImage:drawAnchored(screenWidth * 0.5, 120, 0.5, 0)
+	self._setupTextImage:drawAnchored(screenWidth * 0.5, 140 + self._setupTextAnimator:currentValue(), 0.5, 0)
 end
 
 function SetupScreen:show()
 	self._lastSetupText = ''
 	PdPortal.sendCommand(PdPortal.commands.log, '[SetupScreen] show')
+
+	self._titleTextAnimator = graphics.animator.new(
+		700,
+		-150,
+		0,
+		easings.outBack
+	)
+	self._titleTextAnimator.s = 1.3
+
+	self._setupTextAnimator = graphics.animator.new(
+		600,
+		150,
+		0,
+		easings.outBack,
+		240
+	)
+	self._setupTextAnimator.s = 1.1
 end
 
 function SetupScreen:hide(hideCompleteCallback)
 	PdPortal.sendCommand(PdPortal.commands.log, '[SetupScreen] hide')
-	hideCompleteCallback()
+
+	self._titleTextAnimator = graphics.animator.new(
+		700,
+		0,
+		-150,
+		easings.inBack
+	)
+	self._titleTextAnimator.s = 1.3
+
+	self._setupTextAnimator = graphics.animator.new(
+		600,
+		0,
+		150,
+		easings.inBack,
+		240
+	)
+	self._setupTextAnimator.s = 1.1
+
+	timer.performAfterDelay(900, hideCompleteCallback)
 end
