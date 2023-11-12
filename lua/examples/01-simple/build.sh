@@ -3,7 +3,7 @@ pdxFile="pdportal-01-simple.pdx"
 cp ../../pdportal.lua ./src/pdportal.lua
 pdc src "$pdxFile"
 
-read -t 5 -p "Run on sim or device? s, d, or blank/wait to skip: " runChoice
+runChoice=$1
 
 if [ "$runChoice" = "s" ]; then
 	open "$pdxFile"
