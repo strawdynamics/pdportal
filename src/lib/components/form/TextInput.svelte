@@ -1,5 +1,6 @@
 <script lang="ts">
-	export let label: string
+	export let label: string | null = null
+	export let ariaLabel: string | null = null
 	export let value: string
 	export let placeholder = ''
 
@@ -8,7 +9,15 @@
 </script>
 
 <label>
-	<p>{label}</p>
+	{#if label}
+		<p>{label}</p>
+	{/if}
 
-	<input type="text" class="border {className}" {placeholder} bind:value />
+	<input
+		type="text"
+		class="border rounded px-2 py-[1px] {className}"
+		aria-label={ariaLabel}
+		{placeholder}
+		bind:value
+	/>
 </label>
