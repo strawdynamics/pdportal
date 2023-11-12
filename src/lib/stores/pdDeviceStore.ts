@@ -65,8 +65,12 @@ class PdDeviceStore extends EventEmitter {
 
 	private async pollSerialLoop() {
 		while (this.device && this.device.port.readable) {
-			const bytes = await this.device.serial.readBytes()
-			this.emit('data', bytes)
+			try {
+				const bytes = await this.device.serial.readBytes()
+				this.emit('data', bytes)
+			} catch (err) {
+				console.error('[PdDeviceStore] Error in serial loop', err)
+			}
 		}
 	}
 
@@ -89,6 +93,7 @@ class PdDeviceStore extends EventEmitter {
 
 			this.device.on('disconnect', () => {
 				this.device = null
+				this.emit('disconnect')
 				this.resetWritable()
 			})
 		} catch (err: unknown) {

@@ -55,9 +55,18 @@ class PeerStore extends EventEmitter {
 		this.peer.on('error', this.handlePeerError)
 	}
 
+	private resetWritable() {
+		this.writable.update((state) => {
+			state.peerId = null
+			state.isConnecting = false
+			state.peerConnections = {}
+			return state
+		})
+	}
+
 	destroyPeer() {
 		this.peer?.destroy()
-		// TODO: Other cleanup
+		this.resetWritable()
 	}
 
 	connect(otherPeerId: string) {

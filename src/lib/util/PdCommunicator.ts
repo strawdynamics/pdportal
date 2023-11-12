@@ -23,6 +23,7 @@ export class PdCommunicator {
 
 	constructor() {
 		pdDeviceStore.on('data', this.handleDataFromPlaydate)
+		pdDeviceStore.on('disconnect', this.handlePlaydateDisconnect)
 
 		peerStore.on('peerOpen', this.handlePeerOpen)
 		peerStore.on('peerClose', this.handlePeerClose)
@@ -34,6 +35,7 @@ export class PdCommunicator {
 
 	destroy() {
 		pdDeviceStore.off('data', this.handleDataFromPlaydate)
+		pdDeviceStore.off('disconnect', this.handlePlaydateDisconnect)
 
 		peerStore.off('peerOpen', this.handlePeerOpen)
 		peerStore.off('peerClose', this.handlePeerClose)
@@ -83,6 +85,11 @@ export class PdCommunicator {
 					break
 			}
 		})
+	}
+
+	// Automatically disconnect peer when Playdate connection lost
+	handlePlaydateDisconnect = () => {
+		peerStore.destroyPeer()
 	}
 
 	handleDataFromPeerConn = async (conn: DataConnection, data: unknown) => {
