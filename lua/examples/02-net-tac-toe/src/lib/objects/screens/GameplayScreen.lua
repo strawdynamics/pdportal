@@ -113,8 +113,7 @@ function GameplayScreen:show()
 		self._otherHand:setTarget(otherHandRestPoint)
 	end)
 
-	-- TODO: nttGame.isSelfHost
-	if true then
+	if self.game.isSelfHost then
 		timer.performAfterDelay(1500, function()
 			if not self._isShowing then
 				return
@@ -403,12 +402,6 @@ function GameplayScreen:_netHandlePlaced(placeData)
 	self._boardState:setCell(placeData.index, otherState)
 
 	local didLose = self._boardState:checkWinState(otherState)
-
-	PdPortal.sendCommand(
-		PdPortal.commands.log,
-		'[GameplayScreen] netdidLose???',
-		json.encode({didLose = didLose})
-	)
 
 	if didLose == true then
 		self:_handleLose()
