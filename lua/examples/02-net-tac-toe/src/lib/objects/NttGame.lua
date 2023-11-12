@@ -15,6 +15,8 @@ function NttGame:init()
 	self.isPeerOpen = false
 	self._wasPeerOpen = false
 
+	self.peerId = nil
+	self.remotePeerId = nil
 	self.isSelfHost = false
 
 	self:_initBackgroundDrawing()

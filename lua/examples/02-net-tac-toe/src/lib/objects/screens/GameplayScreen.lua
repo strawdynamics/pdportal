@@ -18,6 +18,12 @@ local otherHandRestPoint <const> = geometry.point.new(
 	screenHeight * 0.7
 )
 
+local MatchEvent <const> = {
+	Start = 's',
+	HandMoved = 'm',
+	Placed = 'p',
+}
+
 function GameplayScreen:init(nttGame)
 	self.game = nttGame
 	self._isShowing = false
@@ -40,8 +46,11 @@ function GameplayScreen:show()
 	self._boardState = BoardState()
 	self._boardLines = BoardLines()
 
-	self._ownHand = Hand('1234', graphics.getLocalizedText('gameplay.you'))
-	self._otherHand = Hand('5678', '5678')
+	self._ownHand = Hand(
+		self.game.peerId,
+		graphics.getLocalizedText('gameplay.you')
+	)
+	self._otherHand = Hand(self.game.remotePeerId, self.game.remotePeerId)
 
 	timer.performAfterDelay(300, function()
 		self._ownHand:setTarget(ownHandRestPoint)
@@ -60,15 +69,21 @@ function GameplayScreen:show()
 
 			self:_setIsX(self._isOwnTurn)
 
-			-- TODO: send matchStart to remote with `isHostX`
+			self:_sendToPeer({e = MatchEvent.Start, isHostX = self._isOwnTurn})
 
-			self:_handleTurnStart()
+			if self._isOwnTurn then
+				self:_handleTurnStart()
+			end
 		end)
 	end
 
 	timer.performAfterDelay(2000, function()
 		self:_enableControls()
 	end)
+end
+
+function GameplayScreen:_sendToPeer(payload)
+	PdPortal.sendToPeerConn(self.game.remotePeerId, payload)
 end
 
 function GameplayScreen:_setIsX(isX)
@@ -113,7 +128,12 @@ function GameplayScreen:_handleHandChangeIndex(oldIndex, newIndex, whichHand)
 			newIndex,
 			self._isX and BoardStates.HoverX or BoardStates.HoverO
 		)
-		-- TODO: Send handMoved newIndex over net
+
+		self:_sendToPeer({
+			e = MatchEvent.HandMoved,
+			oldIndex = oldIndex,
+			newIndex = newIndex
+		})
 	else
 		self._boardState:trySetCell(
 			newIndex,
@@ -178,7 +198,10 @@ function GameplayScreen:_handleAPressed()
 	local didSet = self._boardState:trySetCell(index, ownState)
 
 	if didSet then
-		-- TODO: Send placed index over net
+		self:_sendToPeer({
+			e = MatchEvent.Placed,
+			index = index,
+		})
 
 		local didWin = self._boardState:checkWinState(ownState)
 

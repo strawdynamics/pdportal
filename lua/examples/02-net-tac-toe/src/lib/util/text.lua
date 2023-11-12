@@ -54,6 +54,10 @@ function imageWithTextStroked(
 	stroke,
 	strokeColor
 )
+	if text == nil then
+		text = 'nil'
+	end
+
 	if strokeColor == nil then
 		strokeColor = graphics.kDrawModeFillWhite
 	end

@@ -79,7 +79,11 @@ end
 
 PdPortal.sendToPeerConn = function(peerConnId, payload)
 	local jsonPayload = jsonEncode(payload)
-	self:sendCommand(PdPortal.commands.sendToPeerConn, peerConnId, jsonPayload)
+	PdPortal.sendCommand(
+		PdPortal.commands.sendToPeerConn,
+		peerConnId,
+		jsonPayload
+	)
 end
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
