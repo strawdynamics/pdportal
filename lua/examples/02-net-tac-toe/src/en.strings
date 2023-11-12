@@ -3,3 +3,5 @@
 "setup.serialConnected" = "Connected to serial, connecting to peer server…"
 "setup.peerOpenPrefix" = "Connected to pdportal! Your ID is *"
 "setup.peerOpenSuffix" = "*. Waiting for someone to play with…"
+
+"gameplay.you" = "You"

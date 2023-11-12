@@ -15,6 +15,8 @@ function NttGame:init()
 	self.isPeerOpen = false
 	self._wasPeerOpen = false
 
+	self.isLocalHost = false
+
 	self:_initBackgroundDrawing()
 
 	self._setupScreen = SetupScreen(self)
@@ -66,17 +68,22 @@ end
 
 -- Remote peer connected to us, we are host
 function  NttGame:handlePeerConnection(remotePeerId)
-	self:_handlePeerConn(remotePeerId, true)
+	self.isLocalHost = true
+	self:_handlePeerConn(remotePeerId)
 end
 
 -- We connected to remote peer, they are host
 function NttGame:handlePeerConnOpen(remotePeerId)
-	self:_handlePeerConn(remotePeerId, false)
+	self.isLocalHost = false
+	self:_handlePeerConn(remotePeerId)
 end
 
-function NttGame:_handlePeerConn(remotePeerId, localIsHost)
+function NttGame:_handlePeerConn(remotePeerId)
 	if self.remotePeerId ~= nil then
-		PdPortal.sendCommand(PdPortal.commands.log, '[NttGame] Only 2 players supported!')
+		PdPortal.sendCommand(
+			PdPortal.commands.log,
+			'[NttGame] Only 2 players supported!'
+		)
 		return
 	end
 
@@ -109,9 +116,19 @@ function NttGame:_showSetupScreen()
 	end)
 end
 
+function NttGame:_testSwitchScreen()
+	self._currentScreen:hide(function ()
+		if self._currentScreen == self._setupScreen then
+			self._currentScreen = self._gameplayScreen
+			self._gameplayScreen:show()
+		else
+			self._currentScreen = self._setupScreen
+			self._setupScreen:show()
+		end
+	end)
+end
+
 function NttGame:handlePeerConnData(data)
-	-- data string is a JSON object of shape:
-	-- { peerConnId, payload }
 	local decodedData = json.decode(data)
 	local peerConnId = data.peerConnId
 	local payload = data.payload

@@ -84,6 +84,16 @@ function SetupScreen:show()
 		240
 	)
 	self._setupTextAnimator.s = 1.1
+
+	self:_enableControls()
+end
+
+function SetupScreen:_enableControls()
+	playdate.inputHandlers.push({
+		AButtonDown = function()
+			self.game:_testSwitchScreen()
+		end
+	})
 end
 
 function SetupScreen:hide(hideCompleteCallback)
@@ -105,6 +115,8 @@ function SetupScreen:hide(hideCompleteCallback)
 		easings.inBack
 	)
 	self._setupTextAnimator.s = 1.1
+
+	playdate.inputHandlers.pop()
 
 	timer.performAfterDelay(900, hideCompleteCallback)
 end
