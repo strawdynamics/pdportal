@@ -6,6 +6,7 @@ local fonts <const> = fonts
 local fontFamilies <const> = fontFamilies
 local drawTextAlignedStroked <const> = drawTextAlignedStroked
 local screenWidth, screenHeight = playdate.display.getSize()
+local PdPortal <const> = PdPortal
 
 graphics.pushContext()
 graphics.setFont(fonts.pinzelan48)
@@ -41,25 +42,32 @@ function SetupScreen:update()
 		end
 	end
 
-	graphics.pushContext()
-	-- graphics.setFont(fonts.nicoClean16)
-	graphics.setFontFamily(fontFamilies.nico)
-	imageWithTextStroked(
-		setupText,
-		screenWidth * 0.7,
-		screenHeight,
-		8,
-		'…',
-		kTextAlignment.center,
-		2
-	):drawAnchored(screenWidth * 0.5, 120, 0.5, 0)
-	graphics.popContext()
+	if self._lastSetupText ~= setupText then
+		self._lastSetupText = setupText
+
+		graphics.pushContext()
+		graphics.setFontFamily(fontFamilies.nico)
+		self._setupTextImage = imageWithTextStroked(
+			setupText,
+			screenWidth * 0.7,
+			screenHeight,
+			8,
+			'…',
+			kTextAlignment.center,
+			2
+		)
+		graphics.popContext()
+	end
+
+	self._setupTextImage:drawAnchored(screenWidth * 0.5, 120, 0.5, 0)
 end
 
 function SetupScreen:show()
-	--
+	self._lastSetupText = ''
+	PdPortal.sendCommand(PdPortal.commands.log, '[SetupScreen] show')
 end
 
 function SetupScreen:hide(hideCompleteCallback)
-	--
+	PdPortal.sendCommand(PdPortal.commands.log, '[SetupScreen] hide')
+	hideCompleteCallback()
 end

@@ -4,6 +4,8 @@ local NttGame <const> = NttGame
 local timer <const> = playdate.timer
 local graphics <const> = playdate.graphics
 local display <const> = playdate.display
+local json <const> = json
+local PdPortal <const> = PdPortal
 
 function NttGame:init()
 	self.isSerialConnected = false
@@ -15,6 +17,7 @@ function NttGame:init()
 	self:_initBackgroundDrawing()
 
 	self._setupScreen = SetupScreen(self)
+	self._gameplayScreen = GameplayScreen(self)
 
 	self._currentScreen = self._setupScreen
 	self._setupScreen:show()
@@ -43,6 +46,10 @@ end
 function NttGame:handleSerialDisconnect()
 	self.isSerialConnected = false
 	self:handlePeerClose()
+
+	if self.remotePeerId then
+		self:handlePeerConnClose(self.remotePeerId)
+	end
 end
 
 function NttGame:handlePeerOpen(peerId)
@@ -56,8 +63,58 @@ function NttGame:handlePeerClose()
 	self.isPeerOpen = false
 end
 
-function NttGame:_handleScreenHideComplete()
-	--
+-- Remote peer connected to us, we are host
+function  NttGame:handlePeerConnection(remotePeerId)
+	self:_handlePeerConn(remotePeerId, true)
+end
+
+-- We connected to remote peer, they are host
+function NttGame:handlePeerConnOpen(remotePeerId)
+	self:_handlePeerConn(remotePeerId, false)
+end
+
+function NttGame:_handlePeerConn(remotePeerId, localIsHost)
+	if self.remotePeerId ~= nil then
+		PdPortal.sendCommand(PdPortal.commands.log, '[NttGame] Only 2 players supported!')
+		return
+	end
+
+	self.remotePeerId = remotePeerId
+
+	self._currentScreen:hide(function ()
+		self._currentScreen = self._gameplayScreen
+		self._gameplayScreen:show()
+	end)
+end
+
+function NttGame:handlePeerConnClose(remotePeerId)
+	if remotePeerId ~= self.remotePeerId then
+		return
+	end
+
+	self.remotePeerId = nil
+
+	self:_showSetupScreen()
+end
+
+function NttGame:_showSetupScreen()
+	if self._currentScreen == self._setupScreen then
+		return
+	end
+
+	self._currentScreen:hide(function ()
+		self._currentScreen = self._setupScreen
+		self._setupScreen:show()
+	end)
+end
+
+function NttGame:handlePeerConnData(data)
+	-- data string is a JSON object of shape:
+	-- { peerConnId, payload }
+	local decodedData = json.decode(data)
+	local peerConnId = data.peerConnId
+	local payload = data.payload
+	PdPortal.sendCommand(PdPortal.commands.log, 'TODO: NttGame:handlePeerConnData!', peerConnId, payload)
 end
 
 function NttGame:_updateBasics()
@@ -65,13 +122,6 @@ function NttGame:_updateBasics()
 	timer.updateTimers()
 
 	graphics.sprite.update()
-
-	playdate.graphics.drawTextAligned(
-		connected and 'connected' or 'disconnected',
-		10,
-		30,
-		kTextAlignment.left
-	)
 
 	playdate.drawFPS(10, 10)
 end

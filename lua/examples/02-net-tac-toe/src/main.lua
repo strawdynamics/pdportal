@@ -22,8 +22,6 @@ local PdPortal <const> = PdPortal
 
 local nttGame <const> = NttGame()
 
-local connected = false
-
 playdate.display.setRefreshRate(50)
 
 function playdate.update()
@@ -50,14 +48,18 @@ pdpOnPeerClose = function()
 	nttGame:handlePeerClose()
 end
 
+pdpOnPeerConnection = function(remotePeerId)
+	nttGame:handlePeerConnection(remotePeerId)
+end
+
 pdpOnPeerConnOpen = function(remotePeerId)
-	PdPortal.sendCommand(PdPortal.commands.log, 'peerConnOpenEcho!', remotePeerId)
+	nttGame:handlePeerConnOpen(remotePeerId)
 end
 
 pdpOnPeerConnClose = function(remotePeerId)
-	PdPortal.sendCommand(PdPortal.commands.log, 'peerConnCloseEcho!', remotePeerId)
+	nttGame:handlePeerConnClose(remotePeerId)
 end
 
 pdpOnPeerConnData = function(data)
-	PdPortal.sendCommand(PdPortal.commands.log, 'peerConnDataEcho!', data)
+	nttGame:handlePeerConnData(data)
 end

@@ -15,9 +15,11 @@ function GameplayScreen:update()
 end
 
 function GameplayScreen:show()
+	PdPortal.sendCommand(PdPortal.commands.log, '[GameplayScreen] show')
 	self._boardState = BoardState()
 end
 
 function GameplayScreen:hide(hideCompleteCallback)
-	--
+	PdPortal.sendCommand(PdPortal.commands.log, '[GameplayScreen] hide')
+	hideCompleteCallback()
 end
