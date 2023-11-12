@@ -5,6 +5,7 @@ local graphics <const> = playdate.graphics
 local geometry <const> = playdate.geometry
 local fonts <const> = fonts
 local drawTextAlignedStroked <const> = drawTextAlignedStroked
+local imageWithTextStroked <const> = imageWithTextStroked
 local screenWidth, screenHeight = playdate.display.getSize()
 local timer <const> = playdate.timer
 local BoardStates <const> = BoardStates
@@ -30,6 +31,27 @@ local MatchEventHandlerNames <const> = {
 	[MatchEvent.Placed] = '_netHandlePlaced',
 }
 
+local function makeGameOverImage(str)
+	graphics.pushContext()
+	graphics.setFont(fonts.pinzelan48)
+	local img = imageWithTextStroked(
+		str,
+		screenWidth,
+		screenHeight,
+		1,
+		'…',
+		kTextAlignment.center,
+		3
+	)
+	graphics.popContext()
+
+	return img
+end
+
+local winImg <const> = makeGameOverImage(graphics.getLocalizedText('gameplay.win'))
+local loseImg <const> = makeGameOverImage(graphics.getLocalizedText('gameplay.draw'))
+local drawImg <const> = makeGameOverImage(graphics.getLocalizedText('gameplay.lose'))
+
 function GameplayScreen:init(nttGame)
 	self.game = nttGame
 	self._isShowing = false
@@ -47,6 +69,8 @@ end
 function GameplayScreen:show()
 	self._isShowing = true
 	self._isOwnTurn = false
+	self._isMatchOver = false
+	self._matchOverImg = nil
 
 	PdPortal.sendCommand(PdPortal.commands.log, '[GameplayScreen] show')
 	self._boardState = BoardState()
@@ -59,31 +83,36 @@ function GameplayScreen:show()
 	self._otherHand = Hand(self.game.remotePeerId, self.game.remotePeerId)
 
 	timer.performAfterDelay(300, function()
+		if not self._isShowing then
+			return
+		end
+
 		self._ownHand:setTarget(ownHandRestPoint)
 	end)
 
 	timer.performAfterDelay(600, function()
+		if not self._isShowing then
+			return
+		end
+
 		self._otherHand:setTarget(otherHandRestPoint)
 	end)
 
 	-- TODO: nttGame.isSelfHost
 	if true then
 		timer.performAfterDelay(1500, function()
-			-- Decide who starts first (i.e. who is x)
-			-- TODO: self._isOwnTurn = math.random(1, 2) == 1
-			self._isOwnTurn = true
-
-			self:_setIsX(self._isOwnTurn)
-
-			self:_sendToPeer({e = MatchEvent.Start, isHostX = self._isOwnTurn})
-
-			if self._isOwnTurn then
-				self:_handleTurnStart()
+			if not self._isShowing then
+				return
 			end
+
+			self:_restartMatch()
 		end)
 	end
 
 	timer.performAfterDelay(2000, function()
+		if not self._isShowing then
+			return
+		end
 		self:_enableControls()
 	end)
 end
@@ -226,9 +255,16 @@ function GameplayScreen:_handleAPressed()
 
 		local didWin = self._boardState:checkWinState(ownState)
 
-		if didWin then
-			-- TODO: Handle win condition
-			-- TODO: Handle draw condition? Second return from checkWinState?
+		PdPortal.sendCommand(
+			PdPortal.commands.log,
+			'[GameplayScreen] didWin???',
+			json.encode({didWin = didWin})
+		)
+
+		if didWin == true then
+			self:_handleWin()
+		elseif didWin == -1 then
+			self:_handleDraw()
 		else
 			self:_handleTurnEnd()
 		end
@@ -269,7 +305,64 @@ function GameplayScreen:_resetBoard()
 	self._boardState:reset()
 end
 
+function GameplayScreen:_handleMatchEnd()
+	self._isMatchOver = true
+	self._isOwnTurn = false
+	self._ownHand:setTarget(ownHandRestPoint)
+	self._otherHand:setTarget(otherHandRestPoint)
+end
+
+function GameplayScreen:_restartMatch()
+	self._isMatchOver = false
+	self._matchOverImg = drawImg
+	self:_resetBoard()
+
+	-- Decide who starts first (i.e. who is x)
+	self._isOwnTurn = math.random(1, 2) == 1
+
+	self:_setIsX(self._isOwnTurn)
+
+	self:_sendToPeer({e = MatchEvent.Start, isHostX = self._isOwnTurn})
+
+	if self._isOwnTurn then
+		self:_handleTurnStart()
+	end
+end
+
+function GameplayScreen:_maybeScheduleRestart()
+	if self.game.isSelfHost then
+		timer.performAfterDelay(2000, function()
+			if self._isShowing then
+				self:_restartMatch()
+			end
+		end)
+	end
+end
+
+function GameplayScreen:_handleWin()
+	self._matchOverImg = winImg
+
+	self:_handleMatchEnd()
+	self:_maybeScheduleRestart()
+end
+
+function GameplayScreen:_handleLose()
+	self._matchOverImg = loseImg
+
+	self:_handleMatchEnd()
+	self:_maybeScheduleRestart()
+end
+
+function GameplayScreen:_handleDraw()
+	self._matchOverImg = drawImg
+
+	self:_handleMatchEnd()
+	self:_maybeScheduleRestart()
+end
+
 function GameplayScreen:_netHandleMatchStart(matchStartData)
+	self._isMatchOver = false
+	self._matchOverImg = drawImg
 	self:_resetBoard()
 
 	local isSelfX = not matchStartData.isHostX
@@ -296,9 +389,16 @@ function GameplayScreen:_netHandlePlaced(placeData)
 
 	local didLose = self._boardState:checkWinState(otherState)
 
-	if didLose then
-		-- TODO: Handle lose condition
-		-- TODO: Handle draw condition? Second return from checkWinState?
+	PdPortal.sendCommand(
+		PdPortal.commands.log,
+		'[GameplayScreen] netdidLose???',
+		json.encode({didLose = didLose})
+	)
+
+	if didLose == true then
+		self:_handleLose()
+	elseif didLose == -1 then
+		self:_handleDraw()
 	else
 		self:_handleTurnStart()
 	end

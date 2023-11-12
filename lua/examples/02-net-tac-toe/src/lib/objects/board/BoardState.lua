@@ -73,6 +73,7 @@ function BoardState:_getCellIndex(row, col)
 	return ((row - 1) * 3) + col
 end
 
+-- returns true if given state has a win, false if not, -1 if draw
 function BoardState:checkWinState(s)
 	local g = self.grid
 
@@ -110,5 +111,16 @@ function BoardState:checkWinState(s)
 		return true
 	end
 
-	return false
+	local filledCount = 0
+	for i = 1, 9 do
+		if g[i].state ~= BoardStates.Empty then
+			filledCount += 1
+		end
+	end
+
+	if filledCount == 9 then
+		return -1
+	else
+		return false
+	end
 end

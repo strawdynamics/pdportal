@@ -5,3 +5,6 @@
 "setup.peerOpenSuffix" = "*. Waiting for someone to play with…"
 
 "gameplay.you" = "You"
+"gameplay.win" = "You win!"
+"gameplay.lose" = "You lose!"
+"gameplay.draw" = "Draw!"
