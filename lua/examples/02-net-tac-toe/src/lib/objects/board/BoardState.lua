@@ -23,7 +23,11 @@ end
 function BoardState:trySetCell(cellIndex, state)
 	local currentCellState = self.grid[cellIndex].state
 
-	if currentCellState == 1 then
+	if (
+		currentCellState == 1 or
+		currentCellState == 4 or
+		currentCellState == 5
+	) then
 		self.grid[cellIndex]:setState(state)
 		return true
 	else

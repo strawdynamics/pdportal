@@ -20,6 +20,7 @@ local otherHandRestPoint <const> = geometry.point.new(
 function GameplayScreen:init(nttGame)
 	self.game = nttGame
 	self._isShowing = false
+	self._isX = nil
 end
 
 function GameplayScreen:update()
@@ -32,6 +33,7 @@ end
 
 function GameplayScreen:show()
 	self._isShowing = true
+	self._isOwnTurn = false
 
 	PdPortal.sendCommand(PdPortal.commands.log, '[GameplayScreen] show')
 	self._boardState = BoardState()
@@ -48,22 +50,28 @@ function GameplayScreen:show()
 		self._otherHand:setTarget(otherHandRestPoint)
 	end)
 
-	timer.performAfterDelay(1500, function()
-		-- TODO: nttGame.isSelfHost
-		if true then
+	-- TODO: nttGame.isSelfHost
+	if true then
+		timer.performAfterDelay(1500, function()
+			-- Decide who starts first (i.e. who is x)
+			-- TODO: self._isOwnTurn = math.random(1, 2) == 1
 			self._isOwnTurn = true
-			-- self._isOwnTurn = math.random(1, 2) == 1
-			-- TODO: Send message to peer if they are starting
+
+			self:_setIsX(self._isOwnTurn)
+
+			-- TODO: notify remote whether they're x
 
 			self:_handleTurnStart()
-		else
-			self._isOwnTurn = false
-		end
-	end)
+		end)
+	end
 
 	timer.performAfterDelay(2000, function()
 		self:_enableControls()
 	end)
+end
+
+function GameplayScreen:_setIsX(isX)
+	self._isX = isX
 end
 
 function GameplayScreen:_enableControls()
@@ -90,13 +98,18 @@ function GameplayScreen:_enableControls()
 	})
 end
 
-function GameplayScreen:_handleHandChangeIndex(oldIndex, newIndex)
+function GameplayScreen:_handleHandChangeIndex(oldIndex, newIndex, whichHand)
 	if oldIndex then
 		self._boardState:unsetCellHover(oldIndex)
 	end
 
-	-- TODO: who is whooooM?
-	self._boardState:trySetCell(newIndex, 4)
+	local ownChanged = whichHand == self._ownHand
+	if ownChanged then
+		self._boardState:trySetCell(newIndex, self._isX and 4 or 5)
+		-- TODO: Send new index over net
+	else
+		self._boardState:trySetCell(newIndex, self._isX and 5 or 4)
+	end
 end
 
 function GameplayScreen:_handleUpPressed()
@@ -107,9 +120,7 @@ function GameplayScreen:_handleUpPressed()
 	local oldIndex = self._ownHand:getIndex()
 	local newIndex = self._ownHand:indexMoveUp()
 
-	self:_handleHandChangeIndex(oldIndex, newIndex)
-
-	-- TODO: Send new index over net
+	self:_handleHandChangeIndex(oldIndex, newIndex, self._ownHand)
 end
 
 function GameplayScreen:_handleRightPressed()
@@ -120,9 +131,7 @@ function GameplayScreen:_handleRightPressed()
 	local oldIndex = self._ownHand:getIndex()
 	local newIndex = self._ownHand:indexMoveRight()
 
-	self:_handleHandChangeIndex(oldIndex, newIndex)
-
-	-- TODO: Send new index over net
+	self:_handleHandChangeIndex(oldIndex, newIndex, self._ownHand)
 end
 
 function GameplayScreen:_handleDownPressed()
@@ -133,9 +142,7 @@ function GameplayScreen:_handleDownPressed()
 	local oldIndex = self._ownHand:getIndex()
 	local newIndex = self._ownHand:indexMoveDown()
 
-	self:_handleHandChangeIndex(oldIndex, newIndex)
-
-	-- TODO: Send new index over net
+	self:_handleHandChangeIndex(oldIndex, newIndex, self._ownHand)
 end
 
 function GameplayScreen:_handleLeftPressed()
@@ -146,9 +153,7 @@ function GameplayScreen:_handleLeftPressed()
 	local oldIndex = self._ownHand:getIndex()
 	local newIndex = self._ownHand:indexMoveLeft()
 
-	self:_handleHandChangeIndex(oldIndex, newIndex)
-
-	-- TODO: Send new index over net
+	self:_handleHandChangeIndex(oldIndex, newIndex, self._ownHand)
 end
 
 function GameplayScreen:_handleTurnStart()
@@ -158,7 +163,7 @@ function GameplayScreen:_handleTurnStart()
 
 	local targetIndex = self._boardState:getFirstEmptyCellIndex()
 	self._ownHand:setTargetIndex(targetIndex)
-	self:_handleHandChangeIndex(nil, targetIndex)
+	self:_handleHandChangeIndex(nil, targetIndex, self._ownHand)
 end
 
 function GameplayScreen:hide(hideCompleteCallback)
