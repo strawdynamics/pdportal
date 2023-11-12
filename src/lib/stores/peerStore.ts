@@ -10,6 +10,7 @@ import {
 } from 'svelte/store'
 import { ToastLevel, toastStore } from './toastStore'
 import { EventEmitter } from '$lib/util/EventEmitter'
+import { leftPad } from '$lib/util/string'
 
 interface PeerStoreData {
 	peerId: string | null
@@ -84,7 +85,7 @@ class PeerStore extends EventEmitter {
 	}
 
 	private getRandomPeerId() {
-		return Math.random().toString(36).substring(2, 6).toUpperCase()
+		return leftPad(Math.floor(Math.random() * 10000).toString(), '0', 4)
 	}
 
 	private setIsConnecting(val: boolean) {

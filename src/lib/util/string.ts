@@ -14,3 +14,18 @@ export const stringToByteArray = (str: string) => {
 	}
 	return bytes
 }
+
+// I will never not laugh
+export const leftPad = (str: string, padChar: string, targetLen: number) => {
+	if (padChar.length > 1) {
+		throw new Error('padChar must be single character')
+	}
+
+	const strLen = str.length
+	if (strLen >= targetLen) {
+		return str
+	}
+
+	const padding = padChar.repeat(targetLen - strLen)
+	return padding + str
+}
