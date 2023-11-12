@@ -10,16 +10,12 @@
 	</p>
 
 	<p>
-		There's <em>nothing</em> to play just yet, sit tight! Though there is
-		working bidirectional communication, if you know where to look.
-		<span class="line-through">
-			I'll be honest, there's not much to play yet! If you're interested in
-			trying out the technology, grab <Link
-				href="https://paulstraw.itch.io/net-tac-toe"
-				target="_blank">Net-tac-toe on itch</Link
-			>. It's… well, it's tic-tac-toe. But over the internet! With another
-			Playdate!
-		</span>
+		I'll be honest, there's not much to play yet! If you're interested in trying
+		out the technology, grab <Link
+			href="https://paulstraw.itch.io/net-tac-toe"
+			target="_blank">Net-tac-toe on itch</Link
+		>. It's… well, it's tic-tac-toe. But over the internet! With another
+		Playdate!
 	</p>
 
 	<p>
@@ -30,6 +26,15 @@
 			href="https://www.gabrielgambetta.com/client-server-game-architecture.html"
 			target="_blank">Fast-Paced Multiplayer</Link
 		> series for an introduction to these topics.
+	</p>
+
+	<p class="opacity-50 text-sm">
+		pdportal is not affiliated with or endorsed by <Link
+			href="https://panic.com"
+			target="_blank">Panic</Link
+		>. It uses undocumented device APIs. Use it at your own risk. If you're
+		having a problem with a game that uses pdportal, contact that game's author
+		for support.
 	</p>
 
 	<div>

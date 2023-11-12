@@ -23,6 +23,10 @@ Note that [this technique _cannot_ be used with Catalog games](https://github.co
                          `-----'
 ```
 
+## ⚠️ DISCLAIMER
+
+pdportal is not affiliated with or endorsed by [Panic](https://panic.com). It uses undocumented device APIs. Use it at your own risk. If you're having a problem with a game that uses pdportal, contact that game's author for support.
+
 ## Thanks
 
 pdportal uses [pd-usb](https://github.com/cranksters/pd-usb) and info from [playdate-reverse-engineering](https://github.com/cranksters/playdate-reverse-engineering) to communicate with the cheese. It's built with [Svelte](https://svelte.dev/) and [PeerJS](https://peerjs.com/).

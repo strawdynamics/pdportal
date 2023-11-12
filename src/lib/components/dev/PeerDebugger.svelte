@@ -76,7 +76,7 @@
 		<TextInput
 			label="Other peer ID"
 			bind:value={peerToConnectToId}
-			placeholder="QWOP"
+			placeholder="1234"
 			class="uppercase"
 		/>
 		<Button disabled={peerToConnectToId.length !== 4} on:click={connectToPeer}
