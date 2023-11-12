@@ -8,17 +8,22 @@ function BoardState:init()
 	end
 end
 
+function BoardState:destroy()
+	for i, boardCell in ipairs(self.grid) do
+		boardCell:destroy()
+	end
+end
+
 function BoardState:update()
 	for i, boardCell in ipairs(self.grid) do
 		boardCell:update()
 	end
 end
 
-function BoardState:trySetCell(row, col, state)
-	local cellIndex = self_:_getCellIndex(row, col)
+function BoardState:trySetCell(cellIndex, state)
 	local currentCellState = self.grid[cellIndex].state
 
-	if currentCellState == 0 then
+	if currentCellState == 1 then
 		self.grid[cellIndex]:setState(state)
 		return true
 	else
@@ -26,17 +31,26 @@ function BoardState:trySetCell(row, col, state)
 	end
 end
 
-function BoardState:unsetCellHover(row, col)
-	local cellIndex = self_:_getCellIndex(row, col)
+function BoardState:unsetCellHover(cellIndex)
 	local currentCellState = self.grid[cellIndex].state
 
 	-- Hover state, unset
 	if currentCellState == 4 or currentCellState == 5 then
-		self.grid[cellIndex]:setState(0)
+		self.grid[cellIndex]:setState(1)
 		return true
 	end
 
 	return false
+end
+
+function BoardState:getFirstEmptyCellIndex()
+	for i, cell in ipairs(self.grid) do
+		if cell.state == 1 then
+			return i
+		end
+	end
+
+	error('No empty cells!')
 end
 
 function BoardState:_getCellIndex(row, col)

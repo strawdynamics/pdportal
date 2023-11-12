@@ -59,25 +59,31 @@ local stateImages = {
 -- 1 empty, 2 x, 3 o, 4 hoverX, 5 hoverO
 function BoardCell:init(index)
 	self._index = index
-	self._state = 1
+	self.state = 1
 	self._point = getIndexPoint(self._index):offsetBy(
 		math.random(-1, 1),
 		math.random(-1, 1)
 	)
 
 	self._sprite = graphics.sprite.new(self:_getImage())
+	self._sprite:moveTo(self._point)
+	self._sprite:add()
+end
+
+function BoardCell:destroy()
+	self._sprite:remove()
 end
 
 function BoardCell:setState(newState)
-	self._state = newState
+	self.state = newState
 end
 
 function BoardCell:_getImage()
-	return stateImages[self._state]
+	return stateImages[self.state]
 end
 
 function BoardCell:update()
 	local x, y = self._point:unpack()
 
-	self:_getImage():drawAnchored(x, y, 0.5, 0.5)
+	self._sprite:setImage(self:_getImage())
 end

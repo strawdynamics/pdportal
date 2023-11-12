@@ -15,7 +15,7 @@ function NttGame:init()
 	self.isPeerOpen = false
 	self._wasPeerOpen = false
 
-	self.isLocalHost = false
+	self.isSelfHost = false
 
 	self:_initBackgroundDrawing()
 
@@ -68,13 +68,13 @@ end
 
 -- Remote peer connected to us, we are host
 function  NttGame:handlePeerConnection(remotePeerId)
-	self.isLocalHost = true
+	self.isSelfHost = true
 	self:_handlePeerConn(remotePeerId)
 end
 
 -- We connected to remote peer, they are host
 function NttGame:handlePeerConnOpen(remotePeerId)
-	self.isLocalHost = false
+	self.isSelfHost = false
 	self:_handlePeerConn(remotePeerId)
 end
 
