@@ -24,6 +24,12 @@ local MatchEvent <const> = {
 	Placed = 'p',
 }
 
+local MatchEventHandlerNames <const> = {
+	[MatchEvent.Start] = '_netHandleMatchStart',
+	[MatchEvent.HandMoved] = '_netHandleHandMoved',
+	[MatchEvent.Placed] = '_netHandlePlaced',
+}
+
 function GameplayScreen:init(nttGame)
 	self.game = nttGame
 	self._isShowing = false
@@ -84,6 +90,21 @@ end
 
 function GameplayScreen:_sendToPeer(payload)
 	PdPortal.sendToPeerConn(self.game.remotePeerId, payload)
+end
+
+function GameplayScreen:handlePeerData(payload)
+	-- payload.e, MatchEvent
+	local handlerName = MatchEventHandlerNames[payload.e]
+
+	if handlerName == nil then
+		PdPortal.sendCommand(
+			PdPortal.commands.log,
+			'[GameplayScreen] Received unknown command ' .. payload.e
+		)
+		return
+	end
+
+	self[handlerName](self, payload)
 end
 
 function GameplayScreen:_setIsX(isX)
@@ -248,7 +269,7 @@ function GameplayScreen:_resetBoard()
 	self._boardState:reset()
 end
 
-function GameplayScreen:_handleMatchStart(matchStartData)
+function GameplayScreen:_netHandleMatchStart(matchStartData)
 	self:_resetBoard()
 
 	local isSelfX = not matchStartData.isHostX
@@ -260,14 +281,15 @@ function GameplayScreen:_handleMatchStart(matchStartData)
 	end
 end
 
-function GameplayScreen:_handleHandMoved(handMovedData)
+function GameplayScreen:_netHandleHandMoved(handMovedData)
 	local oldIndex = handMovedData.oldIndex
 	local newIndex = handMovedData.newIndex
-	self._otherHand:setTargetIndex()
+
+	self._otherHand:setTargetIndex(newIndex)
 	self:_handleHandChangeIndex(oldIndex, newIndex, self._otherHand)
 end
 
-function GameplayScreen:_handlePlace(placeData)
+function GameplayScreen:_netHandlePlaced(placeData)
 	local otherState = self._isX and BoardStates.O or BoardStates.X
 
 	self._boardState:setCell(placeData.index, otherState)

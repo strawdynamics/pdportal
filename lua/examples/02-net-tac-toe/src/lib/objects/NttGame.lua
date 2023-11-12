@@ -130,11 +130,16 @@ function NttGame:_testSwitchScreen()
 	end)
 end
 
-function NttGame:handlePeerConnData(data)
-	local decodedData = json.decode(data)
-	local peerConnId = data.peerConnId
-	local payload = data.payload
-	PdPortal.sendCommand(PdPortal.commands.log, 'TODO: NttGame:handlePeerConnData!', peerConnId, payload)
+function NttGame:handlePeerConnData(stringData)
+	local decodedData = json.decode(stringData)
+	local peerConnId = decodedData.peerConnId
+	local payload = decodedData.payload
+
+	if peerConnId ~= self.remotePeerId then
+		return
+	end
+
+	self._gameplayScreen:handlePeerData(payload)
 end
 
 function NttGame:_updateBasics()
