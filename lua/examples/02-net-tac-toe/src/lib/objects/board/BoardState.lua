@@ -1,6 +1,8 @@
 class('BoardState').extends()
 local BoardState <const> = BoardState
 
+local BoardStates <const> = BoardStates
+
 function BoardState:init()
 	self.grid = {}
 	for i = 1, 9 do
@@ -24,22 +26,26 @@ function BoardState:trySetCell(cellIndex, state)
 	local currentCellState = self.grid[cellIndex].state
 
 	if (
-		currentCellState == 1 or
-		currentCellState == 4 or
-		currentCellState == 5
+		currentCellState == BoardStates.Empty or
+		currentCellState == BoardStates.HoverX or
+		currentCellState == BoardStates.HoverO
 	) then
-		self.grid[cellIndex]:setState(state)
+		self:setCell(cellIndex, state)
 		return true
 	else
 		return false
 	end
 end
 
+function BoardState:setCell(cellIndex, state)
+	self.grid[cellIndex]:setState(state)
+end
+
 function BoardState:unsetCellHover(cellIndex)
 	local currentCellState = self.grid[cellIndex].state
 
 	-- Hover state, unset
-	if currentCellState == 4 or currentCellState == 5 then
+	if currentCellState == BoardStates.HoverX or currentCellState == BoardStates.HoverO then
 		self.grid[cellIndex]:setState(1)
 		return true
 	end
@@ -49,7 +55,7 @@ end
 
 function BoardState:getFirstEmptyCellIndex()
 	for i, cell in ipairs(self.grid) do
-		if cell.state == 1 then
+		if cell.state == BoardStates.Empty then
 			return i
 		end
 	end
@@ -57,22 +63,17 @@ function BoardState:getFirstEmptyCellIndex()
 	error('No empty cells!')
 end
 
+function BoardState:reset()
+	for i, cell in ipairs(self.grid) do
+		cell:setState(BoardStates.Empty)
+	end
+end
+
 function BoardState:_getCellIndex(row, col)
 	return ((row - 1) * 3) + col
 end
 
--- Returns 1 for no winner, 2 for x win, 3 for o win
-function BoardState:checkWinStatus()
-	if self:_checkWinForState(2) then
-		return 2
-	elseif self:_checkWinForState(3) then
-		return 3
-	end
-
-	return 1
-end
-
-function BoardState:_checkWinForState(s)
+function BoardState:checkWinState(s)
 	local g = self.grid
 
 	-- Check rows, columns

@@ -7,6 +7,7 @@ local fonts <const> = fonts
 local drawTextAlignedStroked <const> = drawTextAlignedStroked
 local screenWidth, screenHeight = playdate.display.getSize()
 local timer <const> = playdate.timer
+local BoardStates <const> = BoardStates
 
 local ownHandRestPoint <const> = geometry.point.new(
 	40,
@@ -59,7 +60,7 @@ function GameplayScreen:show()
 
 			self:_setIsX(self._isOwnTurn)
 
-			-- TODO: notify remote whether they're x
+			-- TODO: send matchStart to remote with `isHostX`
 
 			self:_handleTurnStart()
 		end)
@@ -92,6 +93,9 @@ function GameplayScreen:_enableControls()
 		leftButtonDown = function()
 			self:_handleLeftPressed()
 		end,
+		AButtonDown = function()
+			self:_handleAPressed()
+		end,
 		BButtonDown = function()
 			self.game:_testSwitchScreen()
 		end
@@ -105,10 +109,16 @@ function GameplayScreen:_handleHandChangeIndex(oldIndex, newIndex, whichHand)
 
 	local ownChanged = whichHand == self._ownHand
 	if ownChanged then
-		self._boardState:trySetCell(newIndex, self._isX and 4 or 5)
-		-- TODO: Send new index over net
+		self._boardState:trySetCell(
+			newIndex,
+			self._isX and BoardStates.HoverX or BoardStates.HoverO
+		)
+		-- TODO: Send handMoved newIndex over net
 	else
-		self._boardState:trySetCell(newIndex, self._isX and 5 or 4)
+		self._boardState:trySetCell(
+			newIndex,
+			self._isX and BoardStates.HoverO or BoardStates.HoverX
+		)
 	end
 end
 
@@ -156,14 +166,44 @@ function GameplayScreen:_handleLeftPressed()
 	self:_handleHandChangeIndex(oldIndex, newIndex, self._ownHand)
 end
 
+function GameplayScreen:_handleAPressed()
+	local index = self._ownHand:getIndex()
+
+	if not self._isOwnTurn or index == nil then
+		return
+	end
+
+	local ownState = self._isX and BoardStates.X or BoardStates.O
+
+	local didSet = self._boardState:trySetCell(index, ownState)
+
+	if didSet then
+		-- TODO: Send placed index over net
+
+		local didWin = self._boardState:checkWinState(ownState)
+
+		if didWin then
+			-- TODO: Handle win condition
+			-- TODO: Handle draw condition? Second return from checkWinState?
+		else
+			self:_handleTurnEnd()
+		end
+	end
+end
+
 function GameplayScreen:_handleTurnStart()
 	self._isOwnTurn = true
 
-	-- TODO: Cleanup (move other hand back to resting pos, probably other stuff)
+	self._otherHand:setTarget(otherHandRestPoint)
 
 	local targetIndex = self._boardState:getFirstEmptyCellIndex()
 	self._ownHand:setTargetIndex(targetIndex)
 	self:_handleHandChangeIndex(nil, targetIndex, self._ownHand)
+end
+
+function GameplayScreen:_handleTurnEnd()
+	self._isOwnTurn = false
+	self._ownHand:setTarget(ownHandRestPoint)
 end
 
 function GameplayScreen:hide(hideCompleteCallback)
@@ -179,4 +219,42 @@ function GameplayScreen:hide(hideCompleteCallback)
 	timer.performAfterDelay(900, hideCompleteCallback)
 
 	playdate.inputHandlers.pop()
+end
+
+function GameplayScreen:_resetBoard()
+	self._boardState:reset()
+end
+
+function GameplayScreen:_handleMatchStart(matchStartData)
+	self:_resetBoard()
+
+	local isSelfX = not matchStartData.isHostX
+
+	self:_setIsX(isSelfX)
+
+	if isSelfX then
+		self:_handleTurnStart()
+	end
+end
+
+function GameplayScreen:_handleHandMoved(handMovedData)
+	local oldIndex = handMovedData.oldIndex
+	local newIndex = handMovedData.newIndex
+	self._otherHand:setTargetIndex()
+	self:_handleHandChangeIndex(oldIndex, newIndex, self._otherHand)
+end
+
+function GameplayScreen:_handlePlace(placeData)
+	local otherState = self._isX and BoardStates.O or BoardStates.X
+
+	self._boardState:setCell(placeData.index, otherState)
+
+	local didLose = self._boardState:checkWinState(otherState)
+
+	if didLose then
+		-- TODO: Handle lose condition
+		-- TODO: Handle draw condition? Second return from checkWinState?
+	else
+		self:_handleTurnStart()
+	end
 end

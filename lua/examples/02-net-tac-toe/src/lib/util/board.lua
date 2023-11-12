@@ -17,3 +17,11 @@ local indexPoints <const> = {
 function getIndexPoint(index)
 	return indexPoints[index]:copy()
 end
+
+BoardStates = {
+	Empty = 1,
+	X = 2,
+	O = 3,
+	HoverX = 4,
+	HoverO = 5,
+}
