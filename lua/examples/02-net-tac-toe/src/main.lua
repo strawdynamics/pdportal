@@ -31,23 +31,23 @@ function playdate.update()
 end
 
 pdpOnConnect = function()
-	nttGame.isSerialConnected = true
+	nttGame:handleSerialConnect()
 end
 
 pdpOnDisconnect = function()
-	nttGame.isSerialConnected = false
+	nttGame:handleSerialDisconnect()
 end
 
 pdpOnPeerOpen = function(peerId)
 	-- Peer connection established, remote peer connection possible.
 	-- https://peerjs.com/docs/#peeron-open
-	nttGame.isPeerOpen = true
+	nttGame:handlePeerOpen(peerId)
 end
 
 pdpOnPeerClose = function()
 	-- Peer connection destroyed, remote peer connection no longer possible.
 	-- https://peerjs.com/docs/#peeron-close
-	nttGame.isPeerOpen = false
+	nttGame:handlePeerClose()
 end
 
 pdpOnPeerConnOpen = function(remotePeerId)

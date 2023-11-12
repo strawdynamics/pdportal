@@ -5,23 +5,24 @@ local graphics <const> = playdate.graphics
 
 local handImageTable <const> = graphics.imagetable.new('img/hand-table')
 
-function Hand:init(peerId)
+function Hand:init(peerId, displayName)
 	self.peerId = peerId
+	self.displayName = displayName
 
-	self._buildPeerIdImage()
+	self._buildDisplayNameImage()
 end
 
-function Hand:_buildPeerIdImage()
-	local peerId = self.peerId
+function Hand:_buildDisplayNameImage()
+	local displayName = self.displayName
 
 	graphics.pushContext()
 	graphics.setFont(fonts.nicoPaint16)
-	local pidWidth, pidHeight = graphics.getTextSize(peerId)
-	local peerIdImage = graphics.image.new(pidWidth + 4, pidHeight + 4)
-	graphics.pushContext(peerIdImage)
-	drawTextAlignedStroked(peerId, 2, 2, kTextAlignment.left, 2, graphics.kDrawModeFillWhite)
+	local dnWidth, dnHeight = graphics.getTextSize(displayName)
+	local displayNameImage = graphics.image.new(dnWidth + 4, dnHeight + 4)
+	graphics.pushContext(displayNameImage)
+	drawTextAlignedStroked(displayName, 2, 2, kTextAlignment.left, 2, graphics.kDrawModeFillWhite)
 	graphics.popContext()
 	graphics.popContext()
 
-	self.peerIdImage = peerIdImage
+	self.displayNameImage = displayNameImage
 end

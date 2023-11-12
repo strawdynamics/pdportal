@@ -1,4 +1,5 @@
 "setup.title" = "Net-tac-toe"
 "setup.disconnected" = "Visit https://pdportal.net on your computer to get started!"
-"setup.connectedPrefix" = "Connected to pdportal! Your ID is "
-"setup.connectedSuffix" = ". Waiting for connection to other player…"
+"setup.serialConnected" = "Connected to serial, connecting to peer server…"
+"setup.peerOpenPrefix" = "Connected to pdportal! Your ID is *"
+"setup.peerOpenSuffix" = "*. Waiting for connection to other player…"
