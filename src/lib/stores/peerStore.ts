@@ -6,11 +6,18 @@ import {
 	type Writable,
 	type Subscriber,
 	type Invalidator,
-	get
+	get,
 } from 'svelte/store'
 import { ToastLevel, toastStore } from './toastStore'
 import { EventEmitter } from '$lib/util/EventEmitter'
 import { leftPad } from '$lib/util/string'
+import {
+	PUBLIC_PEERJS_SERVER_HOST,
+	PUBLIC_PEERJS_SERVER_KEY,
+	PUBLIC_PEERJS_SERVER_PATH,
+	PUBLIC_PEERJS_SERVER_PORT,
+	PUBLIC_PEERJS_SERVER_SECURE,
+} from '$env/static/public'
 
 interface PeerStoreData {
 	peerId: string | null
@@ -26,7 +33,7 @@ class PeerStore extends EventEmitter {
 	subscribe: (
 		this: void,
 		run: Subscriber<PeerStoreData>,
-		invalidate?: Invalidator<PeerStoreData>
+		invalidate?: Invalidator<PeerStoreData>,
 	) => Unsubscriber
 
 	constructor() {
@@ -35,7 +42,7 @@ class PeerStore extends EventEmitter {
 		this.writable = writable({
 			peerId: null,
 			isConnecting: false,
-			peerConnections: {}
+			peerConnections: {},
 		})
 
 		this.subscribe = this.writable.subscribe
@@ -45,7 +52,13 @@ class PeerStore extends EventEmitter {
 	initializePeer() {
 		const peerId = this.getRandomPeerId()
 		console.log(`[PeerStore] Attempting to connect as ${peerId}`)
-		this.peer = new Peer(peerId)
+		this.peer = new Peer(peerId, {
+			host: PUBLIC_PEERJS_SERVER_HOST,
+			port: parseInt(PUBLIC_PEERJS_SERVER_PORT, 10),
+			secure: PUBLIC_PEERJS_SERVER_SECURE === 'true',
+			path: PUBLIC_PEERJS_SERVER_PATH,
+			key: PUBLIC_PEERJS_SERVER_KEY,
+		})
 
 		this.setIsConnecting(true)
 
@@ -139,7 +152,7 @@ class PeerStore extends EventEmitter {
 			toastStore.addToast(
 				'Error connecting to peer server',
 				`${err.message} - ${err.type}`,
-				ToastLevel.Warning
+				ToastLevel.Warning,
 			)
 		}
 	}
@@ -162,12 +175,12 @@ class PeerStore extends EventEmitter {
 			| 'message-too-big'
 			| 'negotiation-failed'
 			| 'connection-closed'
-		>
+		>,
 	) {
 		toastStore.addToast(
 			`Peer conn error ${err.type}`,
 			err.message,
-			ToastLevel.Warning
+			ToastLevel.Warning,
 		)
 
 		this.removePeerConn(conn)
