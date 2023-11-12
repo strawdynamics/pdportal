@@ -48,6 +48,8 @@ local hoverOImage <const> = makeCharImage('o', function()
 	graphics.setImageDrawMode(graphics.kDrawModeFillWhite)
 end, postFadedCharImage)
 
+local BoardStates <const> = BoardStates
+
 local stateImages = {
 	emptyImage,
 	xImage,
@@ -59,7 +61,7 @@ local stateImages = {
 -- 1 empty, 2 x, 3 o, 4 hoverX, 5 hoverO
 function BoardCell:init(index)
 	self._index = index
-	self.state = 1
+	self.state = BoardStates.Empty
 	self._point = getIndexPoint(self._index):offsetBy(
 		math.random(-1, 1),
 		math.random(-1, 1)

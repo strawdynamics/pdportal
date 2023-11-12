@@ -46,7 +46,7 @@ function BoardState:unsetCellHover(cellIndex)
 
 	-- Hover state, unset
 	if currentCellState == BoardStates.HoverX or currentCellState == BoardStates.HoverO then
-		self.grid[cellIndex]:setState(1)
+		self.grid[cellIndex]:setState(BoardStates.Empty)
 		return true
 	end
 

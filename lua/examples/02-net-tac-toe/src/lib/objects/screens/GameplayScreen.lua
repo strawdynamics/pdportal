@@ -49,8 +49,8 @@ local function makeGameOverImage(str)
 end
 
 local winImg <const> = makeGameOverImage(graphics.getLocalizedText('gameplay.win'))
-local loseImg <const> = makeGameOverImage(graphics.getLocalizedText('gameplay.draw'))
-local drawImg <const> = makeGameOverImage(graphics.getLocalizedText('gameplay.lose'))
+local loseImg <const> = makeGameOverImage(graphics.getLocalizedText('gameplay.lose'))
+local drawImg <const> = makeGameOverImage(graphics.getLocalizedText('gameplay.draw'))
 
 function GameplayScreen:init(nttGame)
 	self.game = nttGame
@@ -64,6 +64,21 @@ function GameplayScreen:update()
 
 	self._ownHand:update()
 	self._otherHand:update()
+
+	self:_updateMatchOver()
+end
+
+function GameplayScreen:_updateMatchOver()
+	if not self._isMatchOver or not self._matchOverImg then
+		return
+	end
+
+	self._matchOverImg:drawAnchored(
+		screenWidth * 0.5,
+		screenHeight * 0.5,
+		0.5,
+		0.5
+	)
 end
 
 function GameplayScreen:show()
