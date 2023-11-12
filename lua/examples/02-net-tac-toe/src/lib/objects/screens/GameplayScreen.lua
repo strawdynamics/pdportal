@@ -136,7 +136,6 @@ function GameplayScreen:_sendToPeer(payload)
 end
 
 function GameplayScreen:handlePeerData(payload)
-	-- payload.e, MatchEvent
 	local handlerName = MatchEventHandlerNames[payload.e]
 
 	if handlerName == nil then
@@ -175,9 +174,6 @@ function GameplayScreen:_enableControls()
 		AButtonDown = function()
 			self:_handleAPressed()
 		end,
-		BButtonDown = function()
-			self.game:_testSwitchScreen()
-		end
 	})
 end
 

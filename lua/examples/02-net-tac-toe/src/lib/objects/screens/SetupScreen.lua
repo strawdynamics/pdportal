@@ -90,9 +90,6 @@ end
 
 function SetupScreen:_enableControls()
 	playdate.inputHandlers.push({
-		AButtonDown = function()
-			self.game:_testSwitchScreen()
-		end
 	})
 end
 
