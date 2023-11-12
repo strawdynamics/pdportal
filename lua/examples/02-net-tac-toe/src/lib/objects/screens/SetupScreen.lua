@@ -90,19 +90,19 @@ function SetupScreen:hide(hideCompleteCallback)
 	PdPortal.sendCommand(PdPortal.commands.log, '[SetupScreen] hide')
 
 	self._titleTextAnimator = graphics.animator.new(
-		700,
+		400,
 		0,
 		-150,
-		easings.inBack
+		easings.inBack,
+		150
 	)
 	self._titleTextAnimator.s = 1.3
 
 	self._setupTextAnimator = graphics.animator.new(
-		600,
+		400,
 		0,
 		150,
-		easings.inBack,
-		240
+		easings.inBack
 	)
 	self._setupTextAnimator.s = 1.1
 
