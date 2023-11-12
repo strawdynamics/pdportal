@@ -66,12 +66,17 @@ export class PdCommunicator {
 			const command = args[0]
 			const restArgs = args.slice(1)
 
+			// console.log('[PDCommunicator] executing command', command, restArgs)
+
 			switch (command) {
 				case PdCommunicator.commands.log:
 					console.log(restArgs)
 					break
 				case PdCommunicator.commands.keepalive:
 					this.handleKeepaliveCommand()
+					break
+				case PdCommunicator.commands.sendToPeerConn:
+					this.handleSendToPeerConnCommand(restArgs as [string, string])
 					break
 				default:
 					console.error('[PdCommunicator] Unknown command', command)
@@ -139,5 +144,12 @@ export class PdCommunicator {
 
 	private handleKeepaliveCommand() {
 		pdDeviceStore.evalLuaPayload(getGlobalFunctionCallBytecode('_pdpKeepalive'))
+	}
+
+	private async handleSendToPeerConnCommand(args: [string, string]) {
+		const destPeerId = args[0]
+		const jsonString = args[1]
+		const outJson = JSON.parse(jsonString)
+		await peerStore.send(destPeerId, outJson)
 	}
 }
