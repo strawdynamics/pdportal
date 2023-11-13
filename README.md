@@ -41,7 +41,7 @@ Inspiration and help with the Lua bytecode parts came from [pd-camera](https://g
 
 Thanks for your interest in contributing to pdportal! Before you get started:
 
-1. Read and agree to follow the [code of conduct (Contributor Covenant 2.1)]('./CODE_OF_CONDUCT.md').
+1. Read and agree to follow the [code of conduct (Contributor Covenant 2.1)](./CODE_OF_CONDUCT.md).
 2. Before you start work, check the [open issues](https://github.com/strawdynamics/pdportal/issues) to make sure there isn't an existing issue for the fix or feature you want to work on.
 3. If there's not already a relevant issue, [open a new one](https://github.com/strawdynamics/pdportal/issues/new). Your new issue should describe the fix or feature, why you think it's necessary, and how you want to approach the work (please use one of the issue templates).
 4. Project maintainers will review your proposal and work with you to figure out next steps!
