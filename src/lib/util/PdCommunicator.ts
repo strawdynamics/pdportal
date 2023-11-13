@@ -15,7 +15,8 @@ export class PdCommunicator {
 	static readonly commands = Object.freeze({
 		log: 'l',
 		keepalive: 'k',
-		sendToPeerConn: 'p'
+		sendToPeerConn: 'p',
+		closePeerConn: 'cpc',
 	})
 
 	pdCommandBuffer = new CommandBuffer(PdCommunicator.commandSeparator)
@@ -61,7 +62,7 @@ export class PdCommunicator {
 		completeCommandBuffers.forEach((commandBuffer) => {
 			const args = splitBuffer(
 				commandBuffer,
-				PdCommunicator.argumentSeparator.charCodeAt(0)
+				PdCommunicator.argumentSeparator.charCodeAt(0),
 			).map((arg) => {
 				return this.textDecoder.decode(arg).trim()
 			})
@@ -79,6 +80,9 @@ export class PdCommunicator {
 					break
 				case PdCommunicator.commands.sendToPeerConn:
 					this.handleSendToPeerConnCommand(restArgs as [string, string])
+					break
+				case PdCommunicator.commands.closePeerConn:
+					this.handleClosePeerConnCommand(restArgs as [string])
 					break
 				default:
 					console.error('[PdCommunicator] Unknown command', command)
@@ -98,8 +102,8 @@ export class PdCommunicator {
 				'pdpOnPeerConnData',
 				JSON.stringify({
 					peerConnId: conn.peer,
-					payload: data
-				})
+					payload: data,
+				}),
 			)
 			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
@@ -123,7 +127,7 @@ export class PdCommunicator {
 		if (pdDeviceStore.device) {
 			const bytecode = getGlobalFunctionCallBytecode(
 				'pdpOnPeerConnection',
-				conn.peer
+				conn.peer,
 			)
 			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
@@ -133,7 +137,7 @@ export class PdCommunicator {
 		if (pdDeviceStore.device) {
 			const bytecode = getGlobalFunctionCallBytecode(
 				'pdpOnPeerConnOpen',
-				conn.peer
+				conn.peer,
 			)
 			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
@@ -143,7 +147,7 @@ export class PdCommunicator {
 		if (pdDeviceStore.device) {
 			const bytecode = getGlobalFunctionCallBytecode(
 				'pdpOnPeerConnClose',
-				conn.peer
+				conn.peer,
 			)
 			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
@@ -153,10 +157,19 @@ export class PdCommunicator {
 		pdDeviceStore.evalLuaPayload(getGlobalFunctionCallBytecode('_pdpKeepalive'))
 	}
 
-	private async handleSendToPeerConnCommand(args: [string, string]) {
-		const destPeerId = args[0]
-		const jsonString = args[1]
+	private async handleSendToPeerConnCommand([destPeerId, jsonString]: [
+		string,
+		string,
+	]) {
 		const outJson = JSON.parse(jsonString)
 		await peerStore.send(destPeerId, outJson)
+	}
+
+	private async handleClosePeerConnCommand([closePeerId]: [string]) {
+		console.log(
+			'[PdCommunicator] Closing peer conn (requested by Playdate)',
+			closePeerId,
+		)
+		peerStore.close(closePeerId)
 	}
 }

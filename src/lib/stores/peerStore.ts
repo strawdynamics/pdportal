@@ -94,6 +94,19 @@ class PeerStore extends EventEmitter {
 		})
 	}
 
+	close(otherPeerId: string) {
+		otherPeerId = otherPeerId.toUpperCase()
+		const conn = get(this.writable).peerConnections[otherPeerId]
+
+		if (!conn) {
+			throw new Error(`Can't close unknown peer ${otherPeerId}`)
+		}
+
+		conn.close()
+		// I'm not sure why this isn't automatically called
+		this.handlePeerConnClose(conn)
+	}
+
 	async send(otherPeerId: string, data: unknown) {
 		otherPeerId = otherPeerId.toUpperCase()
 		const conn = get(this.writable).peerConnections[otherPeerId]

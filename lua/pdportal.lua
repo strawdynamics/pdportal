@@ -58,6 +58,7 @@ PdPortal.commands = {
 	log = 'l',
 	keepalive = 'k',
 	sendToPeerConn = 'p',
+	closePeerConn = 'cpc',
 }
 
 local commandSeparator <const> = string.char(30) -- RS (␞)

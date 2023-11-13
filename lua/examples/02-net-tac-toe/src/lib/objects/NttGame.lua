@@ -86,6 +86,11 @@ function NttGame:_handlePeerConn(remotePeerId)
 			PdPortal.commands.log,
 			'[NttGame] Only 2 players supported!'
 		)
+
+		PdPortal.sendCommand(
+			PdPortal.commands.closePeerConn,
+			remotePeerId
+		)
 		return
 	end
 
