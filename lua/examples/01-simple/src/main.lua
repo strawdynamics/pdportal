@@ -3,17 +3,23 @@ import "./pdportal"
 
 import "CoreLibs/graphics"
 
-local PdPortal <const> = PdPortal
-local timer <const> = playdate.timer
 local graphics <const> = playdate.graphics
+
+local PdPortal <const> = PdPortal
+local PortalCommand <const> = PdPortal.PortalCommand
+
+class('Example01SimplePortal').extends(PdPortal)
+local Example01SimplePortal <const> = Example01SimplePortal
 
 local connected = false
 
 playdate.display.setRefreshRate(50)
 
+local portalInstance = Example01SimplePortal()
+
 function playdate.update()
 	-- Required for serial keepalive
-	timer.updateTimers()
+	portalInstance:update()
 
 	graphics.clear()
 
@@ -27,35 +33,40 @@ function playdate.update()
 	playdate.drawFPS(10, 10)
 end
 
-pdpOnConnect = function()
-	connected = true
-	PdPortal.sendCommand(PdPortal.commands.log, 'connectEcho!')
+function Example01SimplePortal:init()
+	-- If your subclass overrides the init method, make sure to call super!
+	Example01SimplePortal.super.init(self)
 end
 
-pdpOnDisconnect = function()
+function Example01SimplePortal:onConnect()
+	connected = true
+	self:log('connectEcho!', 'second arg!')
+end
+
+function Example01SimplePortal:onDisconnect()
 	connected = false
 end
 
-pdpOnPeerOpen = function(peerId)
-	PdPortal.sendCommand(PdPortal.commands.log, 'peerOpenEcho!', peerId)
+function Example01SimplePortal:onPeerOpen(peerId)
+	self:log('peerOpenEcho!', peerId)
 end
 
-pdpOnPeerClose = function()
-	PdPortal.sendCommand(PdPortal.commands.log, 'peerCloseEcho!')
+function Example01SimplePortal:onPeerClose()
+	self:log('peerCloseEcho!')
 end
 
-pdpOnPeerConnection = function(remotePeerId)
-	PdPortal.sendCommand(PdPortal.commands.log, 'peerConnectionEcho!', remotePeerId)
+function Example01SimplePortal:onPeerConnection(remotePeerId)
+	self:log('peerConnectionEcho!', remotePeerId)
 end
 
-pdpOnPeerConnOpen = function(remotePeerId)
-	PdPortal.sendCommand(PdPortal.commands.log, 'peerConnOpenEcho!', remotePeerId)
+function Example01SimplePortal:onPeerConnOpen(remotePeerId)
+	self:log('peerConnOpenEcho!', remotePeerId)
 end
 
-pdpOnPeerConnClose = function(remotePeerId)
-	PdPortal.sendCommand(PdPortal.commands.log, 'peerConnCloseEcho!', remotePeerId)
+function Example01SimplePortal:onPeerConnClose(remotePeerId)
+	self:log('peerConnCloseEcho!', remotePeerId)
 end
 
-pdpOnPeerConnData = function(data)
-	PdPortal.sendCommand(PdPortal.commands.log, 'peerConnDataEcho!', data)
+function Example01SimplePortal:onPeerConnData(remotePeerId, payload)
+	self:log('peerConnDataEcho!', remotePeerId, payload)
 end

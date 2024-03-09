@@ -1,5 +1,4 @@
 <script lang="ts">
-	import CallGlobal from '$lib/components/dev/CallGlobal.svelte'
 	import PeerDebugger from '$lib/components/dev/PeerDebugger.svelte'
 	import DeviceInfo from '$lib/components/dev/DeviceInfo.svelte'
 	import Heading, { HeadingLevel } from '$lib/components/text/Heading.svelte'
@@ -9,8 +8,6 @@
 <Heading level={HeadingLevel.H2}>Dev tools</Heading>
 
 <div class="flex flex-col gap-8">
-	<CallGlobal />
-
 	<PeerDebugger />
 
 	<DeviceInfo />
