@@ -10,8 +10,13 @@
 <header class="flex flex-row items-center justify-between">
 	<div class="relative">
 		<h1
-			class="relative font-bold font-display text-5xl text-black hover:text-neutral-700 active:top-[1px]"
+			class="relative font-bold font-display text-4xl text-black hover:text-neutral-700 active:top-[1px]"
 		>
+			<img
+				src="/logo.jpg"
+				alt=""
+				class="mb-0.5 mr-1 w-[70px] hidden sm:inline-block"
+			/>
 			<a href="/" class="inline-block -mt-1">pdportal</a>
 			<span class="text-sm opacity-60">{version}</span>
 		</h1>
@@ -21,11 +26,11 @@
 				class="absolute bottom-2 -right-4 rounded-full w-2 h-2 bg-pd-yellow"
 				in:fly={{
 					duration: 240,
-					x: -12
+					x: -12,
 				}}
 				out:fly={{
 					duration: 300,
-					x: -12
+					x: -12,
 				}}
 			/>
 		{/if}
