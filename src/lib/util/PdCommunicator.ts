@@ -118,7 +118,7 @@ export class PdCommunicator {
 
 	handlePeerClose = async () => {
 		if (pdDeviceStore.device) {
-			const bytecode = getGlobalFunctionCallBytecode('pdpOnPeerOpen', '')
+			const bytecode = getGlobalFunctionCallBytecode('pdpOnPeerClose')
 			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
 	}
