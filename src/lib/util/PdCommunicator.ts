@@ -1,9 +1,45 @@
 import { pdDeviceStore } from '$lib/stores/pdDeviceStore'
 import { peerStore } from '$lib/stores/peerStore'
 import type { DataConnection } from 'peerjs'
-import { getGlobalFunctionCallBytecode } from './luaBytecode'
 import { splitBuffer } from './buffer'
 import { CommandBuffer } from './CommandBuffer'
+
+/**
+ * Things the Playdate can tell pdportal to do.
+ */
+export enum PortalCommand {
+	/**
+	 * Log the given arguments to the browser console
+	 */
+	Log = 'l',
+	/**
+	 * Keepalive command, automatically sent by the Lua side of pdportal
+	 */
+	Keepalive = 'k',
+	/**
+	 * Takes two strings, the destination peer ID, and a JSON string. Sends the
+	 * JSON to that peer.
+	 */
+	SendToPeerConn = 'p',
+	/**
+	 * Takes one string, the peer ID to close the connection to.
+	 */
+	ClosePeerConn = 'cpc',
+}
+
+/**
+ * Things pdportal can tell the Playdate to do.
+ */
+export enum PlaydateCommand {
+	OnConnect = 'oc',
+	OnPeerConnData = 'opcd',
+	OnPeerOpen = 'opo',
+	OnPeerClose = 'opc',
+	OnPeerConnection = 'opconn',
+	OnPeerConnOpen = 'opco',
+	OnPeerConnClose = 'opcc',
+	Keepalive = 'k',
+}
 
 // Read data from the Playdate, send it on appropriately
 // Take data from the peer store, send it to the Playdate
@@ -12,12 +48,6 @@ export class PdCommunicator {
 	// https://www.lammertbies.nl/comm/info/ascii-characters
 	static readonly commandSeparator = String.fromCharCode(30) // RS (␞)
 	static readonly argumentSeparator = String.fromCharCode(31) // US (␟)
-	static readonly commands = Object.freeze({
-		log: 'l',
-		keepalive: 'k',
-		sendToPeerConn: 'p',
-		closePeerConn: 'cpc',
-	})
 
 	pdCommandBuffer = new CommandBuffer(PdCommunicator.commandSeparator)
 	textDecoder = new TextDecoder()
@@ -72,16 +102,16 @@ export class PdCommunicator {
 			// console.log('[PDCommunicator] executing command', command, restArgs)
 
 			switch (command) {
-				case PdCommunicator.commands.log:
+				case PortalCommand.Log:
 					console.log(restArgs)
 					break
-				case PdCommunicator.commands.keepalive:
+				case PortalCommand.Keepalive:
 					this.handleKeepaliveCommand()
 					break
-				case PdCommunicator.commands.sendToPeerConn:
+				case PortalCommand.SendToPeerConn:
 					this.handleSendToPeerConnCommand(restArgs as [string, string])
 					break
-				case PdCommunicator.commands.closePeerConn:
+				case PortalCommand.ClosePeerConn:
 					this.handleClosePeerConnCommand(restArgs as [string])
 					break
 				default:
@@ -98,63 +128,52 @@ export class PdCommunicator {
 
 	handleDataFromPeerConn = async (conn: DataConnection, data: unknown) => {
 		if (pdDeviceStore.device) {
-			const bytecode = getGlobalFunctionCallBytecode(
-				'pdpOnPeerConnData',
-				JSON.stringify({
-					peerConnId: conn.peer,
-					payload: data,
-				}),
+			await pdDeviceStore.sendCommand(
+				PlaydateCommand.OnPeerConnData,
+				conn.peer,
+				JSON.stringify(data),
 			)
-			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
 	}
 
 	handlePeerOpen = async (peerId: string) => {
 		if (pdDeviceStore.device) {
-			const bytecode = getGlobalFunctionCallBytecode('pdpOnPeerOpen', peerId)
-			await pdDeviceStore.evalLuaPayload(bytecode)
+			await pdDeviceStore.sendCommand(PlaydateCommand.OnPeerOpen, peerId)
 		}
 	}
 
 	handlePeerClose = async () => {
 		if (pdDeviceStore.device) {
-			const bytecode = getGlobalFunctionCallBytecode('pdpOnPeerClose')
-			await pdDeviceStore.evalLuaPayload(bytecode)
+			await pdDeviceStore.sendCommand(PlaydateCommand.OnPeerClose)
 		}
 	}
 
 	handlePeerConnection = async (conn: DataConnection) => {
 		if (pdDeviceStore.device) {
-			const bytecode = getGlobalFunctionCallBytecode(
-				'pdpOnPeerConnection',
+			await pdDeviceStore.sendCommand(
+				PlaydateCommand.OnPeerConnection,
 				conn.peer,
 			)
-			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
 	}
 
 	handlePeerConnOpen = async (conn: DataConnection) => {
 		if (pdDeviceStore.device) {
-			const bytecode = getGlobalFunctionCallBytecode(
-				'pdpOnPeerConnOpen',
-				conn.peer,
-			)
-			await pdDeviceStore.evalLuaPayload(bytecode)
+			await pdDeviceStore.sendCommand(PlaydateCommand.OnPeerConnOpen, conn.peer)
 		}
 	}
 
 	handlePeerConnClose = async (conn: DataConnection) => {
 		if (pdDeviceStore.device) {
-			const bytecode = getGlobalFunctionCallBytecode(
-				'pdpOnPeerConnClose',
+			await pdDeviceStore.sendCommand(
+				PlaydateCommand.OnPeerConnClose,
 				conn.peer,
 			)
-			await pdDeviceStore.evalLuaPayload(bytecode)
 		}
 	}
 
 	private handleKeepaliveCommand() {
-		pdDeviceStore.evalLuaPayload(getGlobalFunctionCallBytecode('_pdpKeepalive'))
+		pdDeviceStore.sendCommand(PlaydateCommand.Keepalive)
 	}
 
 	private async handleSendToPeerConnCommand([destPeerId, jsonString]: [

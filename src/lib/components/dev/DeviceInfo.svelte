@@ -6,6 +6,14 @@
 	const connectDevice = async () => {
 		pdDeviceStore.connect()
 	}
+
+	let msg = ''
+
+	const sendMsg = async () => {
+		const cmd = `msg ${msg}`
+		console.warn('sending command', cmd)
+		pdDeviceStore.device?.serial.writeAscii(cmd)
+	}
 </script>
 
 <section>
@@ -15,8 +23,13 @@
 		<pre class="text-xs h-[200px] overflow-auto">{JSON.stringify(
 				$pdDeviceStore,
 				null,
-				2
+				2,
 			)}</pre>
+
+		<form on:submit|preventDefault={sendMsg}>
+			<input type="text" bind:value={msg} />
+			<Button>Send</Button>
+		</form>
 	{:else}
 		<p>No device connected</p>
 

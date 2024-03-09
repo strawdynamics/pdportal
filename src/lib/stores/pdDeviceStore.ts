@@ -1,20 +1,18 @@
 import {
 	assertUsbSupported,
 	requestConnectPlaydate,
-	type PlaydateDevice
+	type PlaydateDevice,
 } from 'pd-usb'
 import {
 	writable,
 	type Unsubscriber,
 	type Writable,
 	type Subscriber,
-	type Invalidator
+	type Invalidator,
 } from 'svelte/store'
 import { ToastLevel, toastStore } from './toastStore'
 import { EventEmitter } from '$lib/util/EventEmitter'
-import { stringToByteArray } from '$lib/util/string'
-import { hexStringToBuffer } from '$lib/util/buffer'
-import { getGlobalFunctionCallBytecode } from '$lib/util/luaBytecode'
+import { PdCommunicator, PlaydateCommand } from '$lib/util/PdCommunicator'
 
 interface PdDeviceStoreData {
 	device: PlaydateDevice | null
@@ -28,7 +26,7 @@ class PdDeviceStore extends EventEmitter {
 	subscribe: (
 		this: void,
 		run: Subscriber<PdDeviceStoreData>,
-		invalidate?: Invalidator<PdDeviceStoreData>
+		invalidate?: Invalidator<PdDeviceStoreData>,
 	) => Unsubscriber
 
 	constructor() {
@@ -36,7 +34,7 @@ class PdDeviceStore extends EventEmitter {
 
 		this.writable = writable({
 			device: null,
-			serial: null
+			serial: null,
 		})
 
 		this.subscribe = this.writable.subscribe
@@ -50,17 +48,20 @@ class PdDeviceStore extends EventEmitter {
 		})
 	}
 
-	async evalLuaPayload(payload: string) {
+	async sendCommand(command: PlaydateCommand, ...args: string[]) {
 		if (!this.device) {
-			throw new Error('No Playdate connected to eval against!')
+			throw new Error('No Playdate connected to send command to!')
 		}
-		const arrayPayload = hexStringToBuffer(payload)
 
-		const cmd = `eval ${arrayPayload.byteLength}\n`
-		const data = new Uint8Array(cmd.length + arrayPayload.byteLength)
-		data.set(stringToByteArray(cmd), 0)
-		data.set(new Uint8Array(arrayPayload), cmd.length)
-		await this.device.serial.write(data)
+		const cmdParts: [PlaydateCommand | string] = [command]
+		args.forEach((arg) => {
+			cmdParts.push(arg)
+		})
+
+		const cmd = `msg ${cmdParts.join(PdCommunicator.argumentSeparator)}\n`
+		console.warn('sending command!', cmd, cmd.length)
+		// await this.device.serial.writeAscii(cmd)
+		await this.device.serial.write(new TextEncoder().encode(cmd))
 	}
 
 	private async pollSerialLoop() {
@@ -78,12 +79,13 @@ class PdDeviceStore extends EventEmitter {
 		try {
 			this.device = await requestConnectPlaydate()
 			await this.device.open()
+			await this.device.serial.writeAscii('echo off\n')
+
 			const serial = await this.device.getSerial()
 
 			this.pollSerialLoop()
 
-			await this.evalLuaPayload(getGlobalFunctionCallBytecode('_pdpOnConnect'))
-			await this.evalLuaPayload(getGlobalFunctionCallBytecode('pdpOnConnect'))
+			await this.sendCommand(PlaydateCommand.OnConnect)
 
 			this.writable.update((state) => {
 				state.device = this.device
@@ -106,7 +108,7 @@ class PdDeviceStore extends EventEmitter {
 			toastStore.addToast(
 				'Error connecting to Playdate',
 				errorMessage,
-				ToastLevel.Warning
+				ToastLevel.Warning,
 			)
 		}
 	}
