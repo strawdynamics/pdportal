@@ -58,7 +58,8 @@ class PdDeviceStore extends EventEmitter {
 
 		const cmdParts: [PlaydateCommand | string] = [command]
 		args.forEach((arg) => {
-			cmdParts.push(arg)
+			// Convert `\n` to `||n` for transmission (to not end the `msg` command)
+			cmdParts.push(arg.replace(/\n/g, '||n'))
 		})
 
 		const cmd = `msg ${cmdParts.join(

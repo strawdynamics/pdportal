@@ -25,6 +25,10 @@ export enum PortalCommand {
 	 * Takes one string, the peer ID to close the connection to.
 	 */
 	ClosePeerConn = 'cpc',
+	/**
+	 * HTTP fetch
+	 */
+	Fetch = 'f',
 }
 
 /**
@@ -39,6 +43,8 @@ export enum PlaydateCommand {
 	OnPeerConnOpen = 'opco',
 	OnPeerConnClose = 'opcc',
 	Keepalive = 'k',
+	OnFetchError = 'ofe',
+	OnFetchSuccess = 'ofs',
 }
 
 // Read data from the Playdate, send it on appropriately
@@ -113,6 +119,9 @@ export class PdCommunicator {
 					break
 				case PortalCommand.ClosePeerConn:
 					this.handleClosePeerConnCommand(restArgs as [string])
+					break
+				case PortalCommand.Fetch:
+					this.handleFetch(restArgs as [string, string, string])
 					break
 				default:
 					console.error('[PdCommunicator] Unknown command', command)
@@ -190,5 +199,44 @@ export class PdCommunicator {
 			closePeerId,
 		)
 		peerStore.close(closePeerId)
+	}
+
+	private async handleFetch([requestId, url, encodedOptions]: [
+		string,
+		string,
+		string,
+	]) {
+		const options = JSON.parse(encodedOptions)
+
+		try {
+			const res = await fetch(url, options)
+			const resText = await res.text()
+
+			pdDeviceStore.sendCommand(
+				PlaydateCommand.OnFetchSuccess,
+				requestId,
+				resText,
+				JSON.stringify({
+					headers: Object.fromEntries(res.headers),
+					ok: res.ok,
+					redirected: res.redirected,
+					status: res.status,
+					statusText: res.statusText,
+					type: res.type,
+					url: res.url,
+				}),
+			)
+		} catch (err) {
+			const payload =
+				err instanceof Error
+					? JSON.stringify({ message: err.message })
+					: JSON.stringify({ message: String(err) })
+
+			pdDeviceStore.sendCommand(
+				PlaydateCommand.OnFetchError,
+				requestId,
+				payload,
+			)
+		}
 	}
 }
