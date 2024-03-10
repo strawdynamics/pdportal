@@ -12,7 +12,7 @@ import {
 } from 'svelte/store'
 import { ToastLevel, toastStore } from './toastStore'
 import { EventEmitter } from '$lib/util/EventEmitter'
-import { PdCommunicator, PlaydateCommand } from '$lib/util/PdCommunicator'
+import { PlaydateCommand } from '$lib/util/PdCommunicator'
 
 interface PdDeviceStoreData {
 	device: PlaydateDevice | null
@@ -20,6 +20,8 @@ interface PdDeviceStoreData {
 }
 
 class PdDeviceStore extends EventEmitter {
+	static readonly playdateArgumentSeparator = '~,~'
+
 	public device: PlaydateDevice | null = null
 	private writable: Writable<PdDeviceStoreData>
 
@@ -58,10 +60,10 @@ class PdDeviceStore extends EventEmitter {
 			cmdParts.push(arg)
 		})
 
-		const cmd = `msg ${cmdParts.join(PdCommunicator.argumentSeparator)}\n`
-		console.warn('sending command!', cmd, cmd.length)
-		// await this.device.serial.writeAscii(cmd)
-		await this.device.serial.write(new TextEncoder().encode(cmd))
+		const cmd = `msg ${cmdParts.join(
+			PdDeviceStore.playdateArgumentSeparator,
+		)}\n`
+		await this.device.serial.writeAscii(cmd)
 	}
 
 	private async pollSerialLoop() {
