@@ -9,6 +9,7 @@ class('PdPortal').extends()
 local PdPortal <const> = PdPortal
 
 local jsonEncode <const> = json.encode
+local jsonDecode <const> = json.decode
 local timer <const> = playdate.timer
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -92,6 +93,8 @@ PdPortal.PortalCommand = {
 	SendToPeerConn = 'p',
 	--- Takes one string, the peer ID to close the connection to.
 	ClosePeerConn = 'cpc',
+	--- HTTP fetch
+	Fetch = 'f',
 }
 
 --- Send the given PortalCommand and arguments to the pdportal site e.g.
@@ -131,6 +134,18 @@ function PdPortal:sendToPeerConn(peerConnId, payload)
 	)
 end
 
+--- Send an HTTP request using `fetch`.
+-- @see https://developer.mozilla.org/en-US/docs/Web/API/fetch
+function PdPortal:fetch(url, options, successCallback, errorCallback)
+	local encodedOptions = jsonEncode(options)
+	local requestId = tostring(self._nextRequestId)
+	self._nextRequestId += 1
+
+	self._fetchCallbacks[requestId] = {successCallback, errorCallback}
+
+	self:sendCommand(PdPortal.PortalCommand.Fetch, requestId, url, encodedOptions)
+end
+
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Most apps should _not_ need to use, override, or change things below here.
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -145,6 +160,8 @@ PdPortal.PlaydateCommand = {
 	OnPeerConnOpen = 'opco',
 	OnPeerConnClose = 'opcc',
 	Keepalive = 'k',
+	OnFetchSuccess = 'ofs',
+	OnFetchError = 'ofe',
 }
 
 --- Map of PlaydateCommands to method names that should be called
@@ -157,6 +174,8 @@ PdPortal.playdateCommandMethods = {
 	[PdPortal.PlaydateCommand.OnPeerConnOpen] = {'onPeerConnOpen'},
 	[PdPortal.PlaydateCommand.OnPeerConnOpen] = {'onPeerConnClose'},
 	[PdPortal.PlaydateCommand.Keepalive] = {'_onKeepalive'},
+	[PdPortal.PlaydateCommand.OnFetchSuccess] = {'_onFetchSuccess'},
+	[PdPortal.PlaydateCommand.OnFetchError] = {'_onFetchError'},
 }
 
 --- Sent at the end of each command
@@ -166,8 +185,6 @@ PdPortal.portalArgumentSeparator = string.char(31) -- US (␟)
 
 PdPortal.playdateArgumentSeparator = '~,~'
 PdPortal.playdateArgumentPattern = '(.-)' .. PdPortal.playdateArgumentSeparator:gsub('([%(%)%.%%%+%-%*%?%[%^%$])', '%%%1')
-
-
 
 --- The PdPortal class (and by extension, your subclass) should be treated as a
 -- singleton. On init, it sets the system `playdate.serialMessageReceived`
@@ -179,6 +196,9 @@ function PdPortal:init()
 	end
 
 	self.serialKeepaliveTimer = nil
+
+	self._fetchCallbacks = {}
+	self._nextRequestId = 1
 end
 
 function PdPortal:update()
@@ -188,6 +208,9 @@ end
 
 --- Handle input from the `msg` serial command, and distribute appropriately
 function PdPortal:_onSerialMessageReceived(msgString)
+	-- Convert `||n` back to actual `\n` newlines
+	msgString = msgString:gsub('%|%|n', '\n')
+
 	local cmdArgs = {}
 	local lastEnd = 1
 
@@ -238,4 +261,30 @@ function PdPortal:_onKeepalive()
 		end)
 		self:sendCommand(PdPortal.PortalCommand.Keepalive)
 	end)
+end
+
+function PdPortal:_onFetchSuccess(requestId, responseText, responseDetails)
+	local callbacks = self._fetchCallbacks[requestId]
+
+	if callbacks == nil then
+		self:log('Success, but no callbacks found for request ID', requestId)
+		return
+	end
+
+	callbacks[1](responseText, jsonDecode(responseDetails))
+
+	self._fetchCallbacks[requestId] = nil
+end
+
+function PdPortal:_onFetchError(requestId, errorDetails)
+	local callbacks = self._fetchCallbacks[requestId]
+
+	if callbacks == nil then
+		self:log('Error, but no callbacks found for request ID', requestId)
+		return
+	end
+
+	callbacks[2](jsonDecode(errorDetails))
+
+	self._fetchCallbacks[requestId] = nil
 end

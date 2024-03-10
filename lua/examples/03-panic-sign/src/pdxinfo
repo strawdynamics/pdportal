@@ -1,0 +1,5 @@
+name=pdportal-03-panic-sign
+bundleID=com.strawdynamics.pdportal-03-panic-sign
+version=0.2.0
+buildNumber=3
+imagePath=img/pdx

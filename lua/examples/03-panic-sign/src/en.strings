@@ -1,0 +1,18 @@
+"disconnected.instructions" = "Visit https://pdportal.net on your computer to get started!"
+
+"picker.instructions" = "⬅️ ➡️ Pick Segment\nⒶ Change the Sign!"
+"picker.upArrow" = "⬆️"
+"picker.downArrow" = "⬇️"
+
+"colors.red" = "Red"
+"colors.orange" = "Orange"
+"colors.yellow" = "Yellow"
+"colors.green" = "Lime"
+"colors.green2" = "Green"
+"colors.teal" = "Teal"
+"colors.lightblue" = "Light blue"
+"colors.blue" = "Blue"
+"colors.purple" = "Purple"
+"colors.pink" = "Pink"
+
+"updating.description" = "Updating sign…"
