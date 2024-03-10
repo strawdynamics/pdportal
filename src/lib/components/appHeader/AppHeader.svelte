@@ -23,7 +23,7 @@
 
 		{#if $pdDeviceStore.device}
 			<div
-				class="absolute bottom-2 -right-4 rounded-full w-2 h-2 bg-pd-yellow"
+				class="absolute bottom-2 sm:bottom-7 -right-4 rounded-full w-2 h-2 bg-pd-yellow"
 				in:fly={{
 					duration: 240,
 					x: -12,
