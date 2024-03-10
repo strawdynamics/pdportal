@@ -38,9 +38,9 @@ function Example01SimplePortal:init()
 	Example01SimplePortal.super.init(self)
 end
 
-function Example01SimplePortal:onConnect()
+function Example01SimplePortal:onConnect(portalVersion)
 	connected = true
-	self:log('connectEcho!', 'second arg!')
+	self:log('connectEcho!', portalVersion)
 end
 
 function Example01SimplePortal:onDisconnect()

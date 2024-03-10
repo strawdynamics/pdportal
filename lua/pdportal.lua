@@ -18,7 +18,7 @@ local timer <const> = playdate.timer
 
 --- Called by pdportal web app after serial connection established. Example
 --  handler: Update UI to show that the serial connection was successful.
-function PdPortal:onConnect()
+function PdPortal:onConnect(portalVersion)
 	--
 end
 
