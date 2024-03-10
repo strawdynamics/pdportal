@@ -102,11 +102,11 @@ function PdPortal:sendCommand(portalCommand, ...)
 
 	for i = 1, select('#', ...) do
 		local arg = select(i, ...)
-		table.insert(cmd, PdPortal.argumentSeparator)
+		table.insert(cmd, PdPortal.portalArgumentSeparator)
 		table.insert(cmd, arg)
 	end
 
-	table.insert(cmd, PdPortal.commandSeparator)
+	table.insert(cmd, PdPortal.portalCommandSeparator)
 
 	print(table.concat(cmd, ''))
 end
@@ -160,13 +160,14 @@ PdPortal.playdateCommandMethods = {
 }
 
 --- Sent at the end of each command
-PdPortal.commandSeparator = string.char(30) -- RS (␞)
+PdPortal.portalCommandSeparator = string.char(30) -- RS (␞)
 --- Sent between commands and their arguments, and each argument
-PdPortal.argumentSeparator = string.char(31) -- US (␟)
-PdPortal.argumentSeparatorPattern = string.format(
-	'([^%s]+)',
-	PdPortal.argumentSeparator
-)
+PdPortal.portalArgumentSeparator = string.char(31) -- US (␟)
+
+PdPortal.playdateArgumentSeparator = '~,~'
+PdPortal.playdateArgumentPattern = '(.-)' .. PdPortal.playdateArgumentSeparator:gsub('([%(%)%.%%%+%-%*%?%[%^%$])', '%%%1')
+
+
 
 --- The PdPortal class (and by extension, your subclass) should be treated as a
 -- singleton. On init, it sets the system `playdate.serialMessageReceived`
@@ -188,9 +189,18 @@ end
 --- Handle input from the `msg` serial command, and distribute appropriately
 function PdPortal:_onSerialMessageReceived(msgString)
 	local cmdArgs = {}
-	for cmdArg in string.gmatch(msgString, PdPortal.argumentSeparatorPattern) do
-			table.insert(cmdArgs, cmdArg)
+	local lastEnd = 1
+
+	while true do
+		local start, ends, capture = msgString:find(
+			PdPortal.playdateArgumentPattern,
+			lastEnd
+		)
+		if not start then break end
+		table.insert(cmdArgs, capture)
+		lastEnd = ends + 1
 	end
+	table.insert(cmdArgs, msgString:sub(lastEnd))
 
 	local methodsToCall = PdPortal.playdateCommandMethods[cmdArgs[1]]
 

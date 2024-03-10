@@ -46,10 +46,10 @@ export enum PlaydateCommand {
 export class PdCommunicator {
 	// https://en.wikipedia.org/wiki/C0_and_C1_control_codes#Field_separators
 	// https://www.lammertbies.nl/comm/info/ascii-characters
-	static readonly commandSeparator = String.fromCharCode(30) // RS (␞)
-	static readonly argumentSeparator = String.fromCharCode(31) // US (␟)
+	static readonly portalCommandSeparator = String.fromCharCode(30) // RS (␞)
+	static readonly portalArgumentSeparator = String.fromCharCode(31) // US (␟)
 
-	pdCommandBuffer = new CommandBuffer(PdCommunicator.commandSeparator)
+	pdCommandBuffer = new CommandBuffer(PdCommunicator.portalCommandSeparator)
 	textDecoder = new TextDecoder()
 
 	constructor() {
@@ -92,7 +92,7 @@ export class PdCommunicator {
 		completeCommandBuffers.forEach((commandBuffer) => {
 			const args = splitBuffer(
 				commandBuffer,
-				PdCommunicator.argumentSeparator.charCodeAt(0),
+				PdCommunicator.portalArgumentSeparator.charCodeAt(0),
 			).map((arg) => {
 				return this.textDecoder.decode(arg).trim()
 			})
