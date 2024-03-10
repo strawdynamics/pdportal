@@ -13,6 +13,7 @@ import {
 import { ToastLevel, toastStore } from './toastStore'
 import { EventEmitter } from '$lib/util/EventEmitter'
 import { PlaydateCommand } from '$lib/util/PdCommunicator'
+import { version } from '$lib/version'
 
 interface PdDeviceStoreData {
 	device: PlaydateDevice | null
@@ -87,7 +88,7 @@ class PdDeviceStore extends EventEmitter {
 
 			this.pollSerialLoop()
 
-			await this.sendCommand(PlaydateCommand.OnConnect)
+			await this.sendCommand(PlaydateCommand.OnConnect, version)
 
 			this.writable.update((state) => {
 				state.device = this.device
