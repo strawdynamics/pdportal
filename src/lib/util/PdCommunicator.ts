@@ -17,6 +17,15 @@ export enum PortalCommand {
 	 */
 	Keepalive = 'k',
 	/**
+	 * Tell pdportal to initialize connection to the peer server for communicating
+	 * with another Playdate. Not required for `fetch`.
+	 */
+	InitializePeer = 'ip',
+	/**
+	 * Tell pdportal to disconnect from the peer server.
+	 */
+	DestroyPeer = 'dp',
+	/**
 	 * Takes two strings, the destination peer ID, and a JSON string. Sends the
 	 * JSON to that peer.
 	 */
@@ -122,6 +131,12 @@ export class PdCommunicator {
 					break
 				case PortalCommand.Fetch:
 					this.handleFetch(restArgs as [string, string, string])
+					break
+				case PortalCommand.InitializePeer:
+					peerStore.initializePeer()
+					break
+				case PortalCommand.DestroyPeer:
+					peerStore.destroyPeer()
 					break
 				default:
 					console.error('[PdCommunicator] Unknown command', command)

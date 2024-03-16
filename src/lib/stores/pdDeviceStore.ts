@@ -26,6 +26,8 @@ class PdDeviceStore extends EventEmitter {
 	public device: PlaydateDevice | null = null
 	private writable: Writable<PdDeviceStoreData>
 
+	private commandQueue: Promise<void> = Promise.resolve()
+
 	subscribe: (
 		this: void,
 		run: Subscriber<PdDeviceStoreData>,
@@ -65,7 +67,19 @@ class PdDeviceStore extends EventEmitter {
 		const cmd = `msg ${cmdParts.join(
 			PdDeviceStore.playdateArgumentSeparator,
 		)}\n`
-		await this.device.serial.writeAscii(cmd)
+		this.queueCommand(cmd)
+	}
+
+	private queueCommand(cmd: string) {
+		this.commandQueue = this.commandQueue.then(() => this.writeAscii(cmd))
+	}
+
+	private async writeAscii(cmd: string) {
+		try {
+			await this.device?.serial.writeAscii(cmd)
+		} catch (err) {
+			console.error('[pdDeviceStore] Error writing command', cmd, err)
+		}
 	}
 
 	private async pollSerialLoop() {

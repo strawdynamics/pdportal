@@ -11,48 +11,80 @@ local PortalCommand <const> = PdPortal.PortalCommand
 class('Example01SimplePortal').extends(PdPortal)
 local Example01SimplePortal <const> = Example01SimplePortal
 
-local connected = false
-
 playdate.display.setRefreshRate(50)
 
 local portalInstance = Example01SimplePortal()
 
-function playdate.update()
+playdate.update = function()
 	-- Required for serial keepalive
 	portalInstance:update()
+end
+
+function Example01SimplePortal:init()
+	-- If your subclass overrides the init method, make sure to call super!
+	Example01SimplePortal.super.init(self)
+
+	self.connected = false
+	self.peerId = nil
+	self.updatingPeer = false
+end
+
+function Example01SimplePortal:update()
+	-- If your subclass overrides the update method, make sure to call super!
+	Example01SimplePortal.super.update(self)
 
 	graphics.clear()
 
-	playdate.graphics.drawTextAligned(
-		connected and 'connected' or 'disconnected',
+	graphics.drawTextAligned(
+		self.connected and 'Connected' or 'Disconnected',
 		200,
 		120,
 		kTextAlignment.center
 	)
 
 	playdate.drawFPS(10, 10)
-end
 
-function Example01SimplePortal:init()
-	-- If your subclass overrides the init method, make sure to call super!
-	Example01SimplePortal.super.init(self)
+	if self.connected then
+		local peerText = self.peerId and 'Ⓐ Destroy peer ' .. self.peerId or 'Ⓐ Initialize peer'
+		if self.updatingPeer then
+			peerText = 'Updating peer…'
+		end
+
+		graphics.drawTextAligned(peerText, 200, 140, kTextAlignment.center)
+
+		if not self.updatingPeer and playdate.buttonJustPressed(playdate.kButtonA) then
+			self.updatingPeer = true
+
+			if self.peerId == nil then
+				self:sendCommand(PortalCommand.InitializePeer)
+			else
+				self:sendCommand(PortalCommand.DestroyPeer)
+			end
+		end
+	end
 end
 
 function Example01SimplePortal:onConnect(portalVersion)
-	connected = true
+	self.connected = true
 	self:log('connectEcho!', portalVersion)
 end
 
 function Example01SimplePortal:onDisconnect()
-	connected = false
+	self.connected = false
+	self.peerId = nil
+	self.updatingPeer = false
 end
 
 function Example01SimplePortal:onPeerOpen(peerId)
 	self:log('peerOpenEcho!', peerId)
+	self.updatingPeer = false
+	self.peerId = peerId
 end
 
 function Example01SimplePortal:onPeerClose()
 	self:log('peerCloseEcho!')
+	self.updatingPeer = false
+	self.peerId = nil
 end
 
 function Example01SimplePortal:onPeerConnection(remotePeerId)

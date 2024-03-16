@@ -7,7 +7,6 @@
 
 	const connect = async () => {
 		await pdDeviceStore.connect()
-		peerStore.initializePeer()
 	}
 
 	let remotePeerId = ''
