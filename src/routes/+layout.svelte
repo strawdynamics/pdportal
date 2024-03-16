@@ -9,10 +9,14 @@
 
 	let communicator: PdCommunicator | null = null
 
-	console.log(
-		'%c Welcome, explorer! Try running `localStorage.enableDevTools = true` and refreshing.',
-		'font-size: 18px; font-weight: bold; font-family: sans-serif'
-	)
+	if (localStorage.enableDevTools) {
+		console.log('Dev tools enabled, visit `/just-dev-things`')
+	} else {
+		console.log(
+			'%c Welcome, explorer! Try running `localStorage.enableDevTools = true` and refreshing.',
+			'font-size: 18px; font-weight: bold; font-family: sans-serif',
+		)
+	}
 
 	onMount(() => {
 		communicator = new PdCommunicator()

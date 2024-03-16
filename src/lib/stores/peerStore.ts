@@ -50,6 +50,10 @@ class PeerStore extends EventEmitter {
 	}
 
 	initializePeer() {
+		if (this.peer) {
+			return
+		}
+
 		const peerId = this.getRandomPeerId()
 		console.log(`[PeerStore] Attempting to connect as ${peerId}`)
 		this.peer = new Peer(peerId, {
@@ -78,7 +82,12 @@ class PeerStore extends EventEmitter {
 	}
 
 	destroyPeer() {
-		this.peer?.destroy()
+		if (this.peer) {
+			console.log(`[PeerStore] Destroying connection to peer server`)
+
+			this.peer.destroy()
+		}
+
 		this.resetWritable()
 	}
 
@@ -141,6 +150,11 @@ class PeerStore extends EventEmitter {
 
 	// https://peerjs.com/docs/#peeron-close
 	private handlePeerClose = () => {
+		this.peer?.off('open', this.handlePeerOpen)
+		this.peer?.off('close', this.handlePeerClose)
+		this.peer?.off('connection', this.handlePeerConnection)
+		this.peer?.off('error', this.handlePeerError)
+
 		this.peer = null
 		this.writable.update((state) => {
 			state.isConnecting = false

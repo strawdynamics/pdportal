@@ -88,6 +88,11 @@ PdPortal.PortalCommand = {
 	Log = 'l',
 	--- Keepalive command, automatically sent by the Lua side of pdportal
 	Keepalive = 'k',
+	--  Tell pdportal to initialize connection to the peer server for
+	-- communicating with another Playdate. Not required for `fetch`.
+	InitializePeer = 'ip',
+	-- Tell pdportal to disconnect from the peer server.
+	DestroyPeer = 'dp',
 	--- Takes two strings, the destination peer ID, and a JSON string. Sends the
 	-- JSON to that peer.
 	SendToPeerConn = 'p',
@@ -172,7 +177,7 @@ PdPortal.playdateCommandMethods = {
 	[PdPortal.PlaydateCommand.OnPeerClose] = {'onPeerClose'},
 	[PdPortal.PlaydateCommand.OnPeerConnection] = {'onPeerConnection'},
 	[PdPortal.PlaydateCommand.OnPeerConnOpen] = {'onPeerConnOpen'},
-	[PdPortal.PlaydateCommand.OnPeerConnOpen] = {'onPeerConnClose'},
+	[PdPortal.PlaydateCommand.OnPeerConnClose] = {'onPeerConnClose'},
 	[PdPortal.PlaydateCommand.Keepalive] = {'_onKeepalive'},
 	[PdPortal.PlaydateCommand.OnFetchSuccess] = {'_onFetchSuccess'},
 	[PdPortal.PlaydateCommand.OnFetchError] = {'_onFetchError'},
