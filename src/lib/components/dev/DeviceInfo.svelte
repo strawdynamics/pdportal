@@ -10,8 +10,7 @@
 	let msg = ''
 
 	const sendMsg = async () => {
-		const cmd = `msg ${msg}`
-		console.warn('sending command', cmd)
+		const cmd = `msg ${msg}\n`
 		pdDeviceStore.device?.serial.writeAscii(cmd)
 	}
 </script>
@@ -27,8 +26,8 @@
 			)}</pre>
 
 		<form on:submit|preventDefault={sendMsg}>
-			<input type="text" bind:value={msg} />
-			<Button>Send</Button>
+			<input type="text" class="border" bind:value={msg} />
+			<Button>Send `msg`</Button>
 		</form>
 	{:else}
 		<p>No device connected</p>
