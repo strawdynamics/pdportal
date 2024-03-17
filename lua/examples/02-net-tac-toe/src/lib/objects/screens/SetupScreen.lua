@@ -66,7 +66,7 @@ end
 
 function SetupScreen:show()
 	self._lastSetupText = ''
-	PdPortal.sendCommand(PdPortal.commands.log, '[SetupScreen] show')
+	self.game:log('[SetupScreen] show')
 
 	self._titleTextAnimator = graphics.animator.new(
 		700,
@@ -94,7 +94,7 @@ function SetupScreen:_enableControls()
 end
 
 function SetupScreen:hide(hideCompleteCallback)
-	PdPortal.sendCommand(PdPortal.commands.log, '[SetupScreen] hide')
+	self.game:log('[SetupScreen] hide')
 
 	self._titleTextAnimator = graphics.animator.new(
 		400,

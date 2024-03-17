@@ -25,42 +25,6 @@ local nttGame <const> = NttGame()
 
 playdate.display.setRefreshRate(50)
 
-function playdate.update()
+playdate.update = function()
 	nttGame:update()
-end
-
-pdpOnConnect = function()
-	nttGame:handleSerialConnect()
-end
-
-pdpOnDisconnect = function()
-	nttGame:handleSerialDisconnect()
-end
-
-pdpOnPeerOpen = function(peerId)
-	-- Peer connection established, remote peer connection possible.
-	-- https://peerjs.com/docs/#peeron-open
-	nttGame:handlePeerOpen(peerId)
-end
-
-pdpOnPeerClose = function()
-	-- Peer connection destroyed, remote peer connection no longer possible.
-	-- https://peerjs.com/docs/#peeron-close
-	nttGame:handlePeerClose()
-end
-
-pdpOnPeerConnection = function(remotePeerId)
-	nttGame:handlePeerConnection(remotePeerId)
-end
-
-pdpOnPeerConnOpen = function(remotePeerId)
-	nttGame:handlePeerConnOpen(remotePeerId)
-end
-
-pdpOnPeerConnClose = function(remotePeerId)
-	nttGame:handlePeerConnClose(remotePeerId)
-end
-
-pdpOnPeerConnData = function(data)
-	nttGame:handlePeerConnData(data)
 end
