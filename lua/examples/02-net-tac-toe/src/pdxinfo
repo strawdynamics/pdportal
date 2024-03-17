@@ -2,3 +2,4 @@ name=pdportal-02-net-tac-toe
 bundleID=com.strawdynamics.net-tac-toe
 version=0.2.0
 buildNumber=3
+imagePath=img/pdx

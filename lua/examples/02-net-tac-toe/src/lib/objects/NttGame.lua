@@ -1,4 +1,4 @@
-class('NttGame').extends()
+class('NttGame').extends('PdPortal')
 local NttGame <const> = NttGame
 
 local timer <const> = playdate.timer
@@ -9,6 +9,8 @@ local PdPortal <const> = PdPortal
 local screenWidth, screenHeight = playdate.display.getSize()
 
 function NttGame:init()
+	NttGame.super.init(self)
+
 	self.isSerialConnected = false
 	self._wasSerialConnected = false
 
@@ -38,57 +40,57 @@ function NttGame:_initBackgroundDrawing()
 end
 
 function NttGame:update()
+	NttGame.super.update(self)
+
 	self:_updateBasics()
 	self:_updateConnectionState()
 
 	self._currentScreen:update()
 end
 
-function NttGame:handleSerialConnect()
+function NttGame:onConnect()
 	self.isSerialConnected = true
+	self:sendCommand(PdPortal.PortalCommand.InitializePeer)
 end
 
-function NttGame:handleSerialDisconnect()
+function NttGame:onDisconnect()
 	self.isSerialConnected = false
-	self:handlePeerClose()
+	self:onPeerClose()
 
 	if self.remotePeerId then
-		self:handlePeerConnClose(self.remotePeerId)
+		self:onPeerConnClose(self.remotePeerId)
 	end
 end
 
-function NttGame:handlePeerOpen(peerId)
+function NttGame:onPeerOpen(peerId)
 	self.peerId = peerId
 	self.isPeerOpen = true
 end
 
 -- This doesn't matter during gameplay, only matchmaking
-function NttGame:handlePeerClose()
+function NttGame:onPeerClose()
 	self.peerId = nil
 	self.isPeerOpen = false
 end
 
 -- Remote peer connected to us, we are host
-function  NttGame:handlePeerConnection(remotePeerId)
+function  NttGame:onPeerConnection(remotePeerId)
 	self.isSelfHost = true
-	self:_handlePeerConn(remotePeerId)
+	self:_onPeerConn(remotePeerId)
 end
 
 -- We connected to remote peer, they are host
-function NttGame:handlePeerConnOpen(remotePeerId)
+function NttGame:onPeerConnOpen(remotePeerId)
 	self.isSelfHost = false
-	self:_handlePeerConn(remotePeerId)
+	self:_onPeerConn(remotePeerId)
 end
 
-function NttGame:_handlePeerConn(remotePeerId)
+function NttGame:_onPeerConn(remotePeerId)
 	if self.remotePeerId ~= nil then
-		PdPortal.sendCommand(
-			PdPortal.commands.log,
-			'[NttGame] Only 2 players supported!'
-		)
+		self:log('[NttGame] Only 2 players supported!')
 
-		PdPortal.sendCommand(
-			PdPortal.commands.closePeerConn,
+		self:sendCommand(
+			PdPortal.PortalCommand.ClosePeerConn,
 			remotePeerId
 		)
 		return
@@ -102,7 +104,7 @@ function NttGame:_handlePeerConn(remotePeerId)
 	end)
 end
 
-function NttGame:handlePeerConnClose(remotePeerId)
+function NttGame:onPeerConnClose(remotePeerId)
 	if remotePeerId ~= self.remotePeerId then
 		return
 	end
@@ -135,10 +137,8 @@ function NttGame:_testSwitchScreen()
 	end)
 end
 
-function NttGame:handlePeerConnData(stringData)
-	local decodedData = json.decode(stringData)
-	local peerConnId = decodedData.peerConnId
-	local payload = decodedData.payload
+function NttGame:onPeerConnData(peerConnId, stringData)
+	local payload = json.decode(stringData)
 
 	if peerConnId ~= self.remotePeerId then
 		return

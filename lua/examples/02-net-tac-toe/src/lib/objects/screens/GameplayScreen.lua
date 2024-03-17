@@ -87,7 +87,7 @@ function GameplayScreen:show()
 	self._isMatchOver = false
 	self._matchOverImg = nil
 
-	PdPortal.sendCommand(PdPortal.commands.log, '[GameplayScreen] show')
+	self.game:log('[GameplayScreen] show')
 	self._boardState = BoardState()
 	self._boardLines = BoardLines()
 
@@ -132,17 +132,14 @@ function GameplayScreen:show()
 end
 
 function GameplayScreen:_sendToPeer(payload)
-	PdPortal.sendToPeerConn(self.game.remotePeerId, payload)
+	self.game:sendToPeerConn(self.game.remotePeerId, payload)
 end
 
 function GameplayScreen:handlePeerData(payload)
 	local handlerName = MatchEventHandlerNames[payload.e]
 
 	if handlerName == nil then
-		PdPortal.sendCommand(
-			PdPortal.commands.log,
-			'[GameplayScreen] Received unknown command ' .. payload.e
-		)
+		self.game:log('[GameplayScreen] Received unknown command ' .. payload.e)
 		return
 	end
 
@@ -265,8 +262,7 @@ function GameplayScreen:_handleAPressed()
 
 		local didWin = self._boardState:checkWinState(ownState)
 
-		PdPortal.sendCommand(
-			PdPortal.commands.log,
+		self.game:log(
 			'[GameplayScreen] didWin???',
 			json.encode({didWin = didWin})
 		)
@@ -299,7 +295,7 @@ end
 function GameplayScreen:hide(hideCompleteCallback)
 	self._isShowing = false
 
-	PdPortal.sendCommand(PdPortal.commands.log, '[GameplayScreen] hide')
+	self.game:log('[GameplayScreen] hide')
 
 	self._boardState:destroy()
 	self._boardLines:undraw()

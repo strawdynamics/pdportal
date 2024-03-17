@@ -13,13 +13,6 @@ local Example01SimplePortal <const> = Example01SimplePortal
 
 playdate.display.setRefreshRate(50)
 
-local portalInstance = Example01SimplePortal()
-
-playdate.update = function()
-	-- Required for serial keepalive
-	portalInstance:update()
-end
-
 function Example01SimplePortal:init()
 	-- If your subclass overrides the init method, make sure to call super!
 	Example01SimplePortal.super.init(self)
@@ -27,6 +20,13 @@ function Example01SimplePortal:init()
 	self.connected = false
 	self.peerId = nil
 	self.updatingPeer = false
+end
+
+local portalInstance = Example01SimplePortal()
+
+playdate.update = function()
+	-- Required for serial keepalive
+	portalInstance:update()
 end
 
 function Example01SimplePortal:update()
