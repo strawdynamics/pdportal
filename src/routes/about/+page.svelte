@@ -32,9 +32,8 @@
 		pdportal is not affiliated with or endorsed by <Link
 			href="https://panic.com"
 			target="_blank">Panic</Link
-		>. It uses undocumented device APIs. Use it at your own risk. If you're
-		having a problem with a game that uses pdportal, contact that game's author
-		for support.
+		>. Use it at your own risk. If you're having a problem with a game that uses
+		pdportal, contact that game's author for support.
 	</p>
 
 	<div>
