@@ -2,7 +2,7 @@
 
 A magic portal for [Playdate](https://play.date) that enables online multiplayer using Web Serial and WebRTC. This is the web interface (available for use with any Playdate game at https://pdportal.net). If you want to make a multiplayer game that uses pdportal, check out the [lua](./lua) subfolder.
 
-Note that [this technique _cannot_ be used with Catalog games](https://github.com/cranksters/playdate-reverse-engineering/blob/main/usb/usb.md#eval) currently/probably ever.
+This technique should now be compatible with Catalog games!
 
 ```
 +------------+                             +------------+
@@ -25,15 +25,15 @@ Note that [this technique _cannot_ be used with Catalog games](https://github.co
 
 ## ⚠️ DISCLAIMER
 
-pdportal is not affiliated with or endorsed by [Panic](https://panic.com). It uses undocumented device APIs. Use it at your own risk. If you're having a problem with a game that uses pdportal, contact that game's author for support.
+pdportal is not affiliated with or endorsed by [Panic](https://panic.com). Use it at your own risk. If you're having a problem with a game that uses pdportal, contact that game's author for support.
 
-Docs? Currently, the source code is the documentation. Limitations? Probably many.
+Docs? Currently, the source code is the documentation. Limitations? Probably many. Check out the various README.md files for more details.
 
 ## Thanks
 
 pdportal uses [pd-usb](https://github.com/cranksters/pd-usb) and info from [playdate-reverse-engineering](https://github.com/cranksters/playdate-reverse-engineering) to communicate with the cheese. It's built with [Svelte](https://svelte.dev/) and [PeerJS](https://peerjs.com/).
 
-Inspiration and help with the Lua bytecode parts came from [pd-camera](https://github.com/t0mg/pd-camera), and code from [Eric Lewis](https://gist.github.com/ericlewis/43d07016275308de11a5519466deea85).
+Inspiration and help with the Lua bytecode parts in the original version came from [pd-camera](https://github.com/t0mg/pd-camera), and code from [Eric Lewis](https://gist.github.com/ericlewis/43d07016275308de11a5519466deea85).
 
 ## Want to help?
 
