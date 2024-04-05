@@ -77,7 +77,9 @@ function Example04Fetch:_updateReady()
 		self:_createObject(json.encode({
 			name = '04-fetch',
 			data = {
-				hello = 'from pdportal ' .. self.portalVersion
+				hello = 'from pdportal ' .. self.portalVersion,
+				-- Make sure largeish payloads (over 255 chars) can be sent/received
+				padding = 'abcdefghijklmnopanicqrstuvwxyzABCDEFGHIJKLMNOPANICQRSTUVWXYZ0123456789abcdefghijklmnopanicqrstuvwxyzABCDEFGHIJKLMNOPANICQRSTUVWXYZ0123456789abcdefghijklmnopanicqrstuvwxyzABCDEFGHIJKLMNOPANICQRSTUVWXYZ0123456789abcdefghijklmnopanicqrstuvwxyzABCDEFGHIJKLMNOPANICQRSTUVWXYZ0123456789abcdefghijklmnopanicqrstuvwxyzABCDEFGHIJKLMNOPANICQRSTUVWXYZ0123456789'
 			}
 		}))
 	elseif playdate.buttonJustPressed(playdate.kButtonB) then
@@ -120,7 +122,6 @@ function Example04Fetch:_createObject(body)
 
 			local responseJson = json.decode(responseText)
 
-			-- FIXME: Currently messed up because of `msg` character limit. Waiting for response from Panic
 			if responseDetails.status == 200 then
 				self.responseString = responseText
 				self.objectId = responseJson.id

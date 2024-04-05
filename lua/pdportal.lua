@@ -183,13 +183,21 @@ PdPortal.playdateCommandMethods = {
 	[PdPortal.PlaydateCommand.OnFetchError] = {'_onFetchError'},
 }
 
---- Sent at the end of each command
+--- Sent from Playdate to serial host at the end of each command
 PdPortal.portalCommandSeparator = string.char(30) -- RS (␞)
---- Sent between commands and their arguments, and each argument
+--- Sent from Playdate to serial host between commands and their arguments, and each argument
 PdPortal.portalArgumentSeparator = string.char(31) -- US (␟)
 
+--- Sent from serial host to Playdate at the end of each command.
+PdPortal.playdateCommandSeparator = '~|~'
+PdPortal.playdateCommandPattern = PdPortal.playdateCommandSeparator .. "()"
+--- Sent from serial host to Playdate between commands and their arguments, and each argument
 PdPortal.playdateArgumentSeparator = '~,~'
-PdPortal.playdateArgumentPattern = '(.-)' .. PdPortal.playdateArgumentSeparator:gsub('([%(%)%.%%%+%-%*%?%[%^%$])', '%%%1')
+PdPortal.playdateArgumentPattern = '(.-)' .. PdPortal.playdateArgumentSeparator .. "()"
+
+-- Partial commands can be sent from serial host to PD due to `msg` length limit. Add to this buffer until a complete command has been received (playdateCommandSeparator)
+PdPortal.incomingCommandBuffer = ''
+
 
 --- The PdPortal class (and by extension, your subclass) should be treated as a
 -- singleton. On init, it sets the system `playdate.serialMessageReceived`
@@ -213,32 +221,30 @@ end
 
 --- Handle input from the `msg` serial command, and distribute appropriately
 function PdPortal:_onSerialMessageReceived(msgString)
-	-- Convert `||n` back to actual `\n` newlines
-	msgString = msgString:gsub('%|%|n', '\n')
 
-	local cmdArgs = {}
-	local lastEnd = 1
+	-- Convert `~n~` back to actual `\n` newlines
+	msgString = msgString:gsub('~n~', '\n')
 
-	while true do
-		local start, ends, capture = msgString:find(
-			PdPortal.playdateArgumentPattern,
-			lastEnd
-		)
-		if not start then break end
-		table.insert(cmdArgs, capture)
-		lastEnd = ends + 1
-	end
-	table.insert(cmdArgs, msgString:sub(lastEnd))
+	local completeCommandStrings, trailingCommand = PdPortal._splitCommandBuffer(
+		PdPortal.incomingCommandBuffer .. msgString,
+		PdPortal.playdateCommandPattern
+	)
 
-	local methodsToCall = PdPortal.playdateCommandMethods[cmdArgs[1]]
+	PdPortal.incomingCommandBuffer = trailingCommand
 
-	if methodsToCall == nil then
-		self:log('Unknown command received', cmdArgs[1], msgString, string.len(msgString))
-		return
-	end
+	for _i, commandString in ipairs(completeCommandStrings) do
+		local cmdArgs = PdPortal._splitString(commandString, PdPortal.playdateArgumentPattern)
 
-	for i, methodName in ipairs(methodsToCall) do
-		self[methodName](self, table.unpack(cmdArgs, 2))
+		local methodsToCall = PdPortal.playdateCommandMethods[cmdArgs[1]]
+
+		if methodsToCall == nil then
+			self:log('Unknown command received', cmdArgs[1], msgString, string.len(msgString))
+			return
+		end
+
+		for i, methodName in ipairs(methodsToCall) do
+			self[methodName](self, table.unpack(cmdArgs, 2))
+		end
 	end
 end
 
@@ -292,4 +298,50 @@ function PdPortal:_onFetchError(requestId, errorDetails)
 	callbacks[2](jsonDecode(errorDetails))
 
 	self._fetchCallbacks[requestId] = nil
+end
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- Utility functions
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+--- Splits a string on the given pattern. Returns a table of complete commands, and a string with any trailing incomplete command info
+PdPortal._splitCommandBuffer = function(cmdBufferString, pattern)
+	local completeCommands = {}
+	local start = 1
+	local first, last = string.find(cmdBufferString, pattern, start)
+	local trailingCommand = cmdBufferString
+
+	while first do
+		local command = string.sub(cmdBufferString, start, first - 1)
+		if command ~= "" then
+			table.insert(completeCommands, command)
+		end
+		start = last + 1
+		first, last = string.find(cmdBufferString, pattern, start)
+	end
+
+	if start <= string.len(cmdBufferString) then
+		trailingCommand = string.sub(cmdBufferString, start)
+	else
+		trailingCommand = ""
+	end
+
+	return completeCommands, trailingCommand
+end
+
+PdPortal._splitString = function(inputStr, pattern)
+	local result = {}
+	local lastEnd = 1
+
+	for part, endPos in string.gmatch(inputStr, pattern) do
+		table.insert(result, part)
+		lastEnd = endPos
+	end
+
+	-- Add the last part if there is any
+	if lastEnd <= #inputStr then
+		table.insert(result, string.sub(inputStr, lastEnd))
+	end
+
+	return result
 end
