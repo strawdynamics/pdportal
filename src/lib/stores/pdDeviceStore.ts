@@ -21,7 +21,12 @@ interface PdDeviceStoreData {
 }
 
 class PdDeviceStore extends EventEmitter {
+	// Sent from serial host to Playdate at the end of each command.
 	static readonly playdateArgumentSeparator = '~,~'
+	// Sent from serial host to Playdate between commands and their arguments, and each argument
+	static readonly playdateCommandSeparator = '~|~'
+	// Commands longer than ~this (256 minus command data) are truncated when sent to device.
+	static readonly maxCommandLength = 250
 
 	public device: PlaydateDevice | null = null
 	private writable: Writable<PdDeviceStoreData>
@@ -60,14 +65,26 @@ class PdDeviceStore extends EventEmitter {
 
 		const cmdParts: [PlaydateCommand | string] = [command]
 		args.forEach((arg) => {
-			// Convert `\n` to `||n` for transmission (to not end the `msg` command)
-			cmdParts.push(arg.replace(/\n/g, '||n'))
+			// Convert `\n` to `~n~` for transmission (to not end the `msg` command)
+			cmdParts.push(arg.replace(/\n/g, '~n~'))
 		})
 
-		const cmd = `msg ${cmdParts.join(
-			PdDeviceStore.playdateArgumentSeparator,
-		)}\n`
-		this.queueCommand(cmd)
+		const fullCmdString =
+			cmdParts.join(PdDeviceStore.playdateArgumentSeparator) +
+			PdDeviceStore.playdateCommandSeparator
+
+		for (
+			let i = 0;
+			i < fullCmdString.length;
+			i += PdDeviceStore.maxCommandLength
+		) {
+			const segment = fullCmdString.substring(
+				i,
+				i + PdDeviceStore.maxCommandLength,
+			)
+			const cmd = `msg ${segment}\n`
+			this.queueCommand(cmd)
+		}
 	}
 
 	private queueCommand(cmd: string) {
