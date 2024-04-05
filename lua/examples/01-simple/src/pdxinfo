@@ -2,3 +2,4 @@ name=pdportal-01-simple
 bundleID=com.strawdynamics.pdportal-01-simple
 version=0.2.0
 buildNumber=2
+author=pdportal contributors

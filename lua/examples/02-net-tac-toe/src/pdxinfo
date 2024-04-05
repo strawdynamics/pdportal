@@ -1,5 +1,6 @@
-name=pdportal-02-net-tac-toe
+name=Net-tac-toe
 bundleID=com.strawdynamics.net-tac-toe
 version=0.2.0
 buildNumber=3
 imagePath=img/pdx
+author=pdportal contributors
