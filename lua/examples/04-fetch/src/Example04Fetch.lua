@@ -19,7 +19,7 @@ function Example04Fetch:_initOwnProps()
 	self.objectId = '-1'
 	self.connected = false
 	self.isSendingRequest = false
-	self.responseString = nil
+	self.responseImage = nil
 	self.portalVersion = nil
 end
 
@@ -39,20 +39,11 @@ function Example04Fetch:update()
 				100,
 				kTextAlignment.center
 			)
-		elseif self.responseString then
-			graphics.drawTextInRect(
-				'(Ⓐ continue) ' .. self.responseString,
-				10,
-				10,
-				380,
-				220,
-				0,
-				'…',
-				kTextAlignment.center
-			)
+		elseif self.responseImage ~= nil then
+			self.responseImage:draw(10, 10)
 
 			if playdate.buttonJustPressed(playdate.kButtonA) then
-				self.responseString = nil
+				self.responseImage = nil
 			end
 		else
 			self:_updateReady()
@@ -89,6 +80,18 @@ function Example04Fetch:_updateReady()
 	end
 end
 
+function Example04Fetch:_setResponseImage(text)
+	self.responseImage = graphics.imageWithText(
+		'(Ⓐ continue) ' .. text,
+		380,
+		220,
+		graphics.kColorClear,
+		0,
+		'…',
+		kTextAlignment.left
+	)
+end
+
 function Example04Fetch:_getObject()
 	self.isSendingRequest = true
 
@@ -97,7 +100,7 @@ function Example04Fetch:_getObject()
 		{},
 		function (responseText, responseDetails)
 			self.isSendingRequest = false
-			self.responseString = responseText
+			self:_setResponseImage(responseText)
 		end,
 		function (errorDetails)
 			self:_handleError(errorDetails.message)
@@ -123,7 +126,7 @@ function Example04Fetch:_createObject(body)
 			local responseJson = json.decode(responseText)
 
 			if responseDetails.status == 200 then
-				self.responseString = responseText
+				self:_setResponseImage(responseText)
 				self.objectId = responseJson.id
 			else
 				self:_handleError(responseText)
@@ -137,7 +140,7 @@ end
 
 function Example04Fetch:_handleError(errorMessage)
 	self.isSendingRequest = false
-	self.responseString = 'Error: ' .. errorMessage
+	self:_setResponseImage('Error: ' .. errorMessage)
 	self.objectId = '-1'
 end
 
